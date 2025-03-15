@@ -3,7 +3,9 @@ import { GoogleGenerativeAI } from "@google/generative-ai"; // Adjust the import
 import wellspaceLogo from "./assets/wellspace.svg";
 import "./App.css";
 
-const genAI = new GoogleGenerativeAI("AIzaSyAncDNZCbvXGdyqSv90ugbtZFb8hkI6QPI");
+// import VITE_GEMINI_API_KEY from .env (this is vite react app)
+
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 function Counselor() {
