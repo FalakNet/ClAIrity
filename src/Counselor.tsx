@@ -7,7 +7,13 @@ import "./App.css";
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-function getCookie(name) {
+declare global {
+  interface Window {
+    webkitSpeechRecognition: any;
+  }
+}
+
+function getCookie(name: string): string | undefined {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
   if (parts.length === 2) {
@@ -25,15 +31,14 @@ function Counselor() {
   const [input, setInput] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const chatboxRef = useRef<HTMLDivElement>(null);
   const userName = getCookie("name");
 
   useEffect(() => {
     if (userName) {
-      setIsLoggedIn(true);
+      // ...existing code...
     } else {
-      setIsLoggedIn(false);
+      // ...existing code...
       window.location.href = "/login"; // Redirect to login page if not logged in
     }
   }, [userName]);
@@ -57,7 +62,7 @@ function Counselor() {
     setIsTyping(false); // Hide typing indicator
   };
 
-  const fetchGoogleGeminiResponse = async (conversation) => {
+  const fetchGoogleGeminiResponse = async (conversation: { id: string; sender: string; text: string }[]) => {
     try {
       const conversationHistory = conversation
         .map((msg) => `${msg.sender}: ${msg.text}`)
@@ -79,7 +84,7 @@ function Counselor() {
       return;
     }
 
-    const recognition = new webkitSpeechRecognition();
+    const recognition = new window.webkitSpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = "en-US";
@@ -88,12 +93,12 @@ function Counselor() {
       setIsListening(true);
     };
 
-    recognition.onresult = (event) => {
+    recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
       setInput(transcript);
     };
 
-    recognition.onerror = (event) => {
+    recognition.onerror = (event: any) => {
       console.error("Speech recognition error:", event.error);
       setIsListening(false);
     };
