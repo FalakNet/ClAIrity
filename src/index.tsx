@@ -1,7 +1,5 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import falakLogo from "./assets/falak.svg";
-import wellspaceLogo from "./assets/wellspace.svg";
 import "./App.css";
 
 function Index() {
@@ -9,17 +7,12 @@ function Index() {
     <div className="card">
       <div>
         <div style={{ display: "flex", justifyContent: "space-around" }}>
-          <img
-            src={wellspaceLogo}
-            alt="wellspace Logo"
-            className="logo"
-            style={{ fill: "#79b4b0" }}
-          />
+        <h1 className="wellspace">clarity</h1>
           <img
             src={falakLogo}
             alt="Falak Logo"
             className="logo"
-            style={{ fill: "#79b4b0" }}
+            style={{ fill: "#79b4b0",  display: window.innerWidth <= 768 ? "none" : "block"}}
           />
         </div>
         <h1>Clarity Portal</h1>
@@ -31,10 +24,11 @@ function Index() {
         most.
       </p>
 
-{/*  */}
       <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center", flexDirection: window.innerWidth <= 768 ? "column" : "row" }}>
         <Link to="/counselor"><button className='homebutton'>AI Counselor</button></Link>
         <Link to="/anxiousease"><button className='homebutton'>AnxiousEase</button></Link>
+        {/* <Link to="/login"><button className='homebutton'>Login</button></Link>
+        <Link to="/signup"><button className='homebutton'>Signup</button></Link> */}
       </div>
 
       <p className="falak">

@@ -1,3 +1,4 @@
+@import url("https://db.onlinewebfonts.com/c/a959448c957069dae7d52078616ebdc8?family=Architype+Bayer-type+W90");
 @import url("https://fonts.googleapis.com/css2?family=Climate+Crisis&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
@@ -18,11 +19,10 @@
 @import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/duotone-light.css");
 
 #root {
-  width: 60vw;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-  font-family: "Comfortaa", system-ui, sans-serif;
+  font-family: "montserrat", system-ui, sans-serif;
 }
 
 a {
@@ -185,9 +185,10 @@ p {
 .securityMsg {
   text-align: center;
   margin: 0 auto;
-  padding: 1rem 1.5rem;
-  background-color: #fff;
-  color: gray;
+  padding: 0.5rem;
+  width: 75%;
+  background-color: #e9e8e8;
+  color: black;
   border-radius: 10rem;
   font-size: 1rem;
 }
@@ -201,7 +202,7 @@ p {
   font-weight: 800;
   font-family: "Montserrat Alternates";
   font-size: 1.5rem;
-  color: #000;
+  color: #3d3027;
 }
 
 .input {
@@ -218,6 +219,9 @@ p {
   /* center  */
   left: 0;
   right: 0;
+  /* blur the stuff that it overlaps on top of */
+  backdrop-filter: blur(50px);
+  z-index: 2;
 }
 
 .input input {
@@ -225,18 +229,19 @@ p {
   font-weight: 700;
   border: none;
   background-color: transparent;
-  width: 80%;
+  width: 85%;
   font-size: 1.1rem;
   font-family: "Montserrat";
+  word-wrap: break-word;
 }
-
 .input input:focus {
   outline: none;
 }
 
 .input button {
-  align-items: center;
-  width: 1rem;
+  text-align: center;
+  width: 55px;
+  height: 55px;
   display: inline-flex;
   border: 1px solid transparent;
   padding: 0.5em 0.5em;
@@ -258,11 +263,14 @@ p {
 }
 
 .chatbox {
-  padding-bottom: 1.5rem;
-  top: 0;
+  padding-bottom: 6rem;
+  top: 12.5rem;
+  width: 60%;
+  margin: 0 auto;
   left: 0;
   right: 0;
-  margin: 0 auto;
+  position: absolute;
+  z-index: 1; /* Add this line to ensure the chatbox is behind the header */
 }
 
 .header {
@@ -275,8 +283,198 @@ p {
   right: 0;
   /* blur the stuff behind it */
   backdrop-filter: blur(10px);
-  background-color: #e9e8e8;
+  background-color: #fff;
   border-radius: 1rem;
   padding: 1rem 5rem;
+  z-index: 2; /* Add this line to ensure the header is always on top */
+}
 
+/* mobile friendly */
+@media (max-width: 768px) {
+  .input {
+    width: 80vw;
+    bottom: 2rem;
+  }
+  .input input {
+    width: 80%;
+  }
+  .header {
+    width: 90vw;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+  }
+  .name {
+    font-size: 1rem;
+  }
+  .securityMsg {
+    width: 100%;
+  }
+  .chatbox {
+    width: 90vw;
+    left: 0;
+    right: 0;
+    top: 14rem;
+    margin: 0 auto;
+  }
+}
+
+.listening {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.typing-indicator {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.typing-indicator .dot {
+  width: 8px;
+  height: 8px;
+  margin: 0 2px;
+  background-color: #277585;
+  border-radius: 50%;
+  animation: typing 1s infinite;
+}
+
+.typing-indicator .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.login h2 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 2rem;
+  color: #277585;
+  margin-bottom: 1rem;
+  color: #cd5c5c;
+}
+
+.login button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  color: white;
+  background-color: #277585;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login button:hover {
+  background-color: #1a5a6e;
+}
+
+.anxiousease {
+  background-color: #f4efec;
+  padding: 1.5rem 0rem;
+  border-radius: 2rem;
+  max-width: 60vw;
+  width: 100%;
+  right: 0;
+  left: 0;
+  margin: 0 auto;
+}
+
+.anxiousease input {
+  background-color: white;
+  border: #277585 1px solid;
+  border-radius: 0.5rem;
+  padding: 1rem 1rem;
+  width: 90%;
+  font-size: 1rem;
+  color: #3d3027;
+}
+
+.anxiousease button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  float: right;
+  margin-right: 2.5rem;
+  font-weight: bold;
+  color: white;
+  background-color: #277585;
+  border: none;
+  border-radius: 2rem;
+  cursor: pointer;
+}
+
+.anxiousbox {
+  background-color: white;
+  padding: 1rem 1rem;
+  border-radius: 2rem;
+  width: 80%;
+  right: 0;
+  left: 0;
+  border: #277585 1px solid;
+  margin: 5vh auto;
+  color: black;
+  text-align: left;
+}
+
+.anxiousbox img {
+  border-radius: 1.5rem;
+  padding: 1rem;
+}
+
+.wellspace {
+  font-family: "Architype Bayer-type W90", sans-serif;
 }
