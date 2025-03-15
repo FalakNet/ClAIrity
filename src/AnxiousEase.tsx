@@ -181,13 +181,27 @@ function AnxiousEase() {
                 <h2>How to help?</h2>
                 <div
                   style={{
-                    fontSize: "1rem",
-                    display: "flex",
-                    flexDirection: window.innerWidth > 768 ? "row" : "column",
+                  fontSize: "0.75rem",
+                  textAlign: "center",
+                  display: "flex",
+                  flexDirection: window.innerWidth > 768 ? "row" : "column",
                   }}
                 >
                   {ideas.map((idea, index) => (
-                    <p key={index}>{idea.split("|").join(" | ")}</p>
+                    <div key={index} style={{ marginBottom: "1rem", display: "flex", alignItems: "center" }}>
+                    <p>{idea.split("|").join(" | ")}</p>
+                    {index < ideas.length - 1 && (
+                      <hr
+                      style={{
+                        margin: window.innerWidth > 768 ? "0 1rem" : "1rem 0",
+                        height: window.innerWidth > 768 ? "100%" : "1px",
+                        width: window.innerWidth > 768 ? "1px" : "100%",
+                        backgroundColor: "black",
+                        border: "none",
+                      }}
+                      />
+                    )}
+                    </div>
                   ))}
                 </div>
               </div>
