@@ -27,14 +27,25 @@ function getCookie(name: string): string | undefined {
 }
 
 function Counselor() {
+  const userName = getCookie("name");
+  const storageKey = `clairity-chat-${userName || "guest"}`;
+
+  // Load messages from localStorage or initialize with empty array
   const [messages, setMessages] = useState<
     { id: string; sender: string; text: string }[]
-  >([]);
+  >(() => {
+    const savedMessages = localStorage.getItem(storageKey);
+    return savedMessages ? JSON.parse(savedMessages) : [];
+  });
+
   const [input, setInput] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [showClearPopup, setShowClearPopup] = useState(false);
+  const [isOverlayVisible, setIsOverlayVisible] = useState(false);
+  const [overlayClass, setOverlayClass] = useState("fade-out");
   const chatboxRef = useRef<HTMLDivElement>(null);
-  const userName = getCookie("name");
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     if (userName) {
@@ -44,6 +55,23 @@ function Counselor() {
       window.location.href = "/login"; // Redirect to login page if not logged in
     }
   }, [userName]);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem(storageKey, JSON.stringify(messages));
+    }
+  }, [messages, storageKey]);
+
+  useEffect(() => {
+    if (showClearPopup) {
+      setIsOverlayVisible(true);
+      setTimeout(() => setOverlayClass("fade-in"), 0);
+    } else {
+      setOverlayClass("fade-out");
+      setTimeout(() => setIsOverlayVisible(false), 300);
+    }
+  }, [showClearPopup]);
 
   const handleSend = async () => {
     if (input.trim() === "") return;
@@ -128,15 +156,19 @@ function Counselor() {
     }
   }, [messages]);
 
+  // Initialize with welcome message only if no messages exist
   useEffect(() => {
-    const firstName = userName ? userName.split(" ")[0] : "there";
-    const welcomeMessage = {
-      id: generateId(),
-      sender: "ai",
-      text: `Hey ${firstName}, How do you feel today?`,
-    };
-    setMessages([welcomeMessage]);
-  }, [userName]);
+    if (!hasInitializedRef.current && messages.length === 0 && userName) {
+      const firstName = userName.split(" ")[0];
+      const welcomeMessage = {
+        id: generateId(),
+        sender: "ai",
+        text: `Hey ${firstName}, How do you feel today?`,
+      };
+      setMessages([welcomeMessage]);
+      hasInitializedRef.current = true;
+    }
+  }, [userName, messages.length]);
 
   return (
     <div>
@@ -164,16 +196,19 @@ function Counselor() {
               gap: "0.5rem",
               color: "#3d3027",
             }}
+            onClick={() => setShowClearPopup(true)}
           >
-            <span className="name">{userName}</span>
+            <span className="name" style={{ cursor: "pointer" }}>
+              {userName}
+            </span>
             <i className="fas fa-circle" style={{ fontSize: "1.5rem" }}></i>
           </div>
         </div>
 
         <p className="securityMsg">
           {" "}
-          <i className="far fa-lock-keyhole"></i> Your conversations remain
-          confidential unless you consent to share them with a counsellor
+          <i className="far fa-lock-keyhole"></i> Your data remains
+          confidential.
         </p>
       </div>
       <div className="chatbox" ref={chatboxRef}>
@@ -243,6 +278,96 @@ function Counselor() {
           <i className="far fa-paper-plane-top"></i>{" "}
         </button>
       </div>
+      {isOverlayVisible && (
+        <>
+          <style>{`
+            .popup-overlay {
+              position: fixed;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background-color: rgba(0, 0, 0, 0.5);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              z-index: 1000;
+              transition: opacity 0.3s ease-in-out;
+            }
+            .fade-in {
+              opacity: 1;
+            }
+            .fade-out {
+              opacity: 0;
+            }
+          `}</style>
+          <div
+            className={`popup-overlay ${overlayClass}`}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowClearPopup(false);
+              }
+            }}
+          >
+            <div
+              style={{
+                // ...existing code...
+                background: "white",
+                border: "1px solid #ccc",
+                borderRadius: "2rem",
+                padding: "3rem 1.5rem",
+                color: "#000",
+                width: "75%",
+                maxWidth: "600px",
+              }}
+            >
+              <p>Clear this chat?</p>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "1rem",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <button
+                  onClick={() => {
+                    setMessages([]);
+                    setShowClearPopup(false);
+                  }}
+                  style={{
+                    color: "#000",
+                    border: "1px solid #ccc",
+                    borderRadius: "2rem",
+                    backgroundColor: "#f4e1e1",
+                    padding: "0.5em 2rem",
+                    fontSize: "1.5rem",
+                    pointerEvents: "all",
+                    cursor: "pointer",
+                  }}
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={() => setShowClearPopup(false)}
+                  style={{
+                    color: "#000",
+                    border: "1px solid #ccc",
+                    borderRadius: "2rem",
+                    fontSize: "1.5rem",
+                    backgroundColor: "#e1f4ea",
+                    padding: "0.5em 2rem",
+                    pointerEvents: "all",
+                    cursor: "pointer",
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

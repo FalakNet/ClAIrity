@@ -24,16 +24,18 @@ function Signup() {
   return (
     <div>
 
-<p
-        style={{
-          fontFamily: "montserrat alternates",
-          fontWeight: 700,
-          fontSize: "3rem",
-          color: "#277585",
-        }}
-      >
-        <span className="Clarity">clairity</span> Sign Up
-      </p>
+<Link to="/">
+        <p
+          style={{
+            fontFamily: "montserrat alternates",
+            fontWeight: 700,
+            fontSize: "3rem",
+            color: "#277585",
+          }}
+        >
+          <span className="Clarity">clairity</span> Sign Up
+        </p>
+      </Link>
       <form onSubmit={handleSignup} style={{ height: "100%" }}>
 
       <label>Name</label>
@@ -82,7 +84,7 @@ function Signup() {
         <br />
         <button type="submit" className="authButton">
           {" "}
-          Login
+          Sign Up
         </button>
       </form>
 

@@ -142,8 +142,8 @@ function AnxiousEase() {
 
         <p className="securityMsg">
           {" "}
-          <i className="far fa-lock-keyhole"></i> Your conversations remain
-          confidential unless you consent to share them with a counsellor
+          <i className="far fa-lock-keyhole"></i>Your data remains
+          confidential.
         </p>
       </div>
       <br />

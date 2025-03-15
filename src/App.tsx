@@ -6,6 +6,7 @@ import Counselor from './Counselor';
 import AnxiousEase from './AnxiousEase';
 import Login from './Login';
 import Signup from './Signup';
+import MindState from './MindState';
 
 // Animation wrapper component
 function AnimatedPage({ children }: { children: React.ReactNode }) {
@@ -41,6 +42,7 @@ function App() {
         <Route path="/" element={<AnimatedPage><Index /></AnimatedPage>} />
         <Route path="/counselor" element={<AnimatedPage><Counselor /></AnimatedPage>} />
         <Route path="/anxiousease" element={<AnimatedPage><AnxiousEase /></AnimatedPage>} />
+        <Route path="/mindstate" element={<AnimatedPage><MindState /></AnimatedPage>} />
         <Route path="/login" element={<AnimatedPage><Login /></AnimatedPage>} />
         <Route path="/signup" element={<AnimatedPage><Signup /></AnimatedPage>} />
       </Routes>

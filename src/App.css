@@ -125,6 +125,12 @@ p {
 .falak {
   font-family: "Montserrat Alternates", system-ui, sans-serif;
   font-weight: bold;
+  position: absolute;
+  bottom: 2rem;
+  right: 0;
+  left: 0;
+  margin: 0 auto;
+
 }
 
 .falak a {
@@ -185,7 +191,7 @@ p {
 .securityMsg {
   text-align: center;
   margin: 0 auto;
-  padding: 0.5rem;
+  padding: 1rem;
   width: 75%;
   background-color: #e9e8e8;
   color: black;
@@ -345,7 +351,7 @@ p {
     left: 0;
     right: 0;
     top: 14rem;
-    margin: 0 auto;
+    padding-bottom: 7.5rem;
   }
 }
 
@@ -407,11 +413,11 @@ p {
 }
 
 .fade-in {
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .fade-out {
-  animation: fadeOut 0.5s ease-in-out forwards;
+  animation: fadeOut 0.3s ease-in-out forwards;
 }
 
 @keyframes fadeIn {
@@ -531,8 +537,8 @@ p {
 
 .fade-in-delayed {
   opacity: 0;
-  animation: fadeIn 0.5s ease-in forwards;
-  animation-delay: 0.5s;
+  animation: fadeIn 0.3s ease-in forwards;
+  animation-delay: 0.3s;
 }
 
 form {
@@ -549,6 +555,10 @@ form label {
   color: #277585;
   text-align: left;
   width: 100%;
+}
+
+form p {
+  font-size: 1rem;
 }
 
 .authInput {

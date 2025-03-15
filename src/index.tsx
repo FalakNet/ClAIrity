@@ -34,8 +34,8 @@ function Index() {
         style={{ right: "0", position: "absolute", padding: "1rem", top: "0" }}
       >
         {isLoggedIn ? (
-            <div
-            className={`profile ${isFading ? 'fade-out' : 'fade-in'}`}
+          <div
+            className={`profile ${isFading ? "fade-out" : "fade-in"}`}
             style={{
               display: "flex",
               alignItems: "center",
@@ -46,15 +46,17 @@ function Index() {
               transition: "opacity 0.5s ease-out",
             }}
             onClick={handleLogout}
-            >
+          >
             <span className="name" style={{ fontSize: "1.5rem" }}>
               {userName}
             </span>
             <i className="fas fa-circle" style={{ fontSize: "1.5rem" }}></i>
-            </div>
+          </div>
         ) : (
-          <div className={isFading ? 'fade-in-delayed' : 'fade-in'} 
-               style={{ transition: "opacity 0.5s ease-in" }}>
+          <div
+            className={isFading ? "fade-in-delayed" : "fade-in"}
+            style={{ transition: "opacity 0.5s ease-in" }}
+          >
             <Link to="/login">
               <button
                 className="homebutton"
@@ -96,13 +98,9 @@ function Index() {
               }}
             />
           </div>
-          <h1>Clairity Portal</h1>
         </div>
         <p style={{ width: "75%", margin: "auto", paddingBottom: "2rem" }}>
-          Your AI-powered mental health companion. Share how you feel and get
-          instant support for the challenges you face. Connect with a counselor
-          to resolve your issues and find the care you need, when you need it
-          most.
+          Your AI-powered mental health companion.
         </p>
 
         <div
@@ -113,22 +111,24 @@ function Index() {
             flexDirection: window.innerWidth <= 768 ? "column" : "row",
           }}
         >
-            <Link to={isLoggedIn ? "/counselor" : "/login"}>
-            <button className="homebutton">AI Counselor</button>
+          <Link to={isLoggedIn ? "/counselor" : "/login"}>
+            <button className="homebutton">Clairity Counselor</button>
           </Link>
           <Link to={isLoggedIn ? "/anxiousease" : "/login"}>
             <button className="homebutton">AnxiousEase</button>
           </Link>
+          <Link to={isLoggedIn ? "/mindstate" : "/login"}>
+            <button className="homebutton">MindState</button>
+          </Link>
         </div>
-
-        <p className="falak">
-          A Falak Project
-          <br />
-          <a href="https://www.falaknet.com/" target="_blank">
-            www.falaknet.com
-          </a>
-        </p>
       </div>
+      <p className="falak">
+        A Falak Project
+        <br />
+        <a href="https://www.falaknet.com/" target="_blank">
+          www.falaknet.com
+        </a>
+      </p>
     </div>
   );
 }
@@ -138,6 +138,6 @@ export default Index;
 function getCookie(name: string) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(';').shift() || "";
+  if (parts.length === 2) return parts.pop()?.split(";").shift() || "";
   return "";
 }

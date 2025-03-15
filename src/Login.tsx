@@ -74,13 +74,21 @@ function Login() {
         <br />
         <button type="submit" className="authButton">
           {" "}
-          Login
+          Log In
         </button>
-        
+
         <p>
           Don't have an account? <Link to="/signup">Sign Up</Link>
         </p>
       </form>
+
+      <p className="falak">
+          A Falak Project
+          <br />
+          <a href="https://www.falaknet.com/" target="_blank">
+            www.falaknet.com
+          </a>
+        </p>
     </div>
   );
 }
