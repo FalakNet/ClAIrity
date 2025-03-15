@@ -7,7 +7,8 @@ import "./App.css";
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-function getCookie(name) {
+
+function getCookie(name: string): string | undefined {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
   if (parts.length === 2) {
@@ -36,7 +37,7 @@ function AnxiousEase() {
     setResponse(response);
   };
 
-  const fetchGoogleGeminiResponse = async (input) => {
+  const fetchGoogleGeminiResponse = async (input: string) => {
     try {
       const result = await model.generateContent(
         `You are an AI providing compassionate guidance on mental well-being. Your responses should be supportive, non-judgmental, and focused on mental health topics. Avoid unrelated topics and do not provide medical diagnoses. Encourage self-reflection and positive coping strategies. MAX 60 WORDS. User input: \n${input}`

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
@@ -6,9 +6,14 @@ function Login() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  interface User {
+    name: string;
+    password: string;
+  }
+
+  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const user = JSON.parse(localStorage.getItem(email));
+    const user: User | null = localStorage.getItem(email) ? JSON.parse(localStorage.getItem(email)!) : null;
     if (user && user.password === password) {
       document.cookie = `name=${user.name}; path=/`;
       navigate('/');
