@@ -7,7 +7,7 @@ function Index() {
     <div className="card">
       <div>
         <div style={{ display: "flex", justifyContent: "space-around" }}>
-        <h1 className="wellspace">clarity</h1>
+        <h1 className="Clarity">clairity</h1>
           <img
             src={falakLogo}
             alt="Falak Logo"
@@ -15,7 +15,7 @@ function Index() {
             style={{ fill: "#79b4b0",  display: window.innerWidth <= 768 ? "none" : "block"}}
           />
         </div>
-        <h1>Clarity Portal</h1>
+        <h1>Clairity Portal</h1>
       </div>
       <p>
         Your AI-powered mental health companion. Share how you feel and get

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clarity-cache-v1';
+const CACHE_NAME = 'Clairity-cache-v1';
 const urlsToCache = [
   '/',
   '/index.html',

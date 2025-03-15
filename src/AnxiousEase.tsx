@@ -95,14 +95,14 @@ function AnxiousEase() {
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
             {/* <img
-              src={ClarityLogo}
-              alt="Clarity Logo"
+              src={ClairityLogo}
+              alt="Clairity Logo"
               className="logo"
               style={{ height: "2rem", padding: "0", paddingRight: "0.5rem" }}
             /> */}
             
             <p style={{ fontFamily: "montserrat alternates", fontWeight: 700 }}>
-              <span className="wellspace">clarity</span> AnxiousEase
+              <span className="Clarity">clairity</span> AnxiousEase
             </p>
           </div>
 
