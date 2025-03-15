@@ -71,11 +71,11 @@ function AnxiousEase() {
 
       // Severity score color codes
       const severityImages = {
-        "1": "https://placehold.co/200/green/white?text=1",
-        "2": "https://placehold.co/200/lightgreen/white?text=2",
-        "3": "https://placehold.co/200/gold/white?text=3",
-        "4": "https://placehold.co/200/cd5c5c/white?text=4",
-        "5": "https://placehold.co/200/red/white?text=5",
+        "1": window.innerWidth > 768 ? "https://placehold.co/200/green/white?text=1" : "https://placehold.co/400x100/green/white?text=1",
+        "2": window.innerWidth > 768 ? "https://placehold.co/200/lightgreen/white?text=2" : "https://placehold.co/400x100/lightgreen/white?text=2",
+        "3": window.innerWidth > 768 ? "https://placehold.co/200/gold/white?text=3" : "https://placehold.co/400x100/gold/white?text=3",
+        "4": window.innerWidth > 768 ? "https://placehold.co/200/cd5c5c/white?text=4" : "https://placehold.co/400x100/cd5c5c/white?text=4",
+        "5": window.innerWidth > 768 ? "https://placehold.co/200/red/white?text=5" : "https://placehold.co/400x100/red/white?text=5",
       };
       setServImg(severityImages[severityScore.trim() as keyof typeof severityImages]);
       setQuote(quote);
@@ -94,14 +94,8 @@ function AnxiousEase() {
       <div className="header">
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
-            {/* <img
-              src={ClairityLogo}
-              alt="Clairity Logo"
-              className="logo"
-              style={{ height: "2rem", padding: "0", paddingRight: "0.5rem" }}
-            /> */}
             
-            <p style={{ fontFamily: "montserrat alternates", fontWeight: 700 }}>
+            <p style={{ fontFamily: "montserrat alternates", fontWeight: 700 }} onClick={() => window.location.replace("/")}>
               <span className="Clarity">clairity</span> AnxiousEase
             </p>
           </div>
@@ -127,6 +121,7 @@ function AnxiousEase() {
         </p>
       </div>
       <br />
+
       <div className="anxiousease">
         <h2 style={{ textAlign: "left", paddingLeft: "3rem" }}>
           What are you feeling anxious about?
@@ -152,18 +147,22 @@ function AnxiousEase() {
         <br />
 
         {response && (
-          <div className="anxiousbox">
-            <div style={{ display: "flex", gap: "1rem" }}>
-              <img
-                src={servImg}
-                alt="Severity Score"
-              />
+            <div className="anxiousbox">
+            {/* flex direction row if desktop or column if phone */}
+            <div
+              style={{
+              display: "flex",
+              gap: "1rem",
+              flexDirection: window.innerWidth > 768 ? "row" : "column",
+              }}
+            >
+              <img src={servImg} alt="Severity Score" />
               <div>
-                <p style={{ fontSize: "1rem" }}>{response}</p>
-                <h2>Severity Score: {severityScore}</h2>
+              <p style={{ fontSize: "1rem" }}>{response}</p>
+              <h2>Severity Score: {severityScore}</h2>
               </div>
             </div>
-          </div>
+            </div>
         )}
 
         {response && (
@@ -182,11 +181,13 @@ function AnxiousEase() {
                 <h2>How to help?</h2>
                 <div
                   style={{
-                    fontSize: "1.3rem",
+                    fontSize: "1rem",
+                    display: "flex",
+                    flexDirection: window.innerWidth > 768 ? "row" : "column",
                   }}
                 >
                   {ideas.map((idea, index) => (
-                    <li key={index}>{idea.split("|").join(" | ")}</li>
+                    <p key={index}>{idea.split("|").join(" | ")}</p>
                   ))}
                 </div>
               </div>

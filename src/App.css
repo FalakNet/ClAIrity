@@ -116,7 +116,6 @@ p {
 
 .card {
   padding: 2em;
-  margin: 0 auto;
 }
 
 .read-the-docs {
@@ -296,9 +295,6 @@ p {
     width: 80vw;
     bottom: 2rem;
   }
-
-
-
   .input input {
     width: 80%;
   }
@@ -312,17 +308,25 @@ p {
   .name {
     font-size: 1rem;
   }
-  
+
   .anxiousease {
     background-color: #f4efec;
     position: absolute;
-    padding: 1.5rem 0rem;
+    padding: 3rem 3rem;
     border-radius: 2rem;
-    max-width: 100vw;
-    width: 100%;
+    width: 80% !important;
     right: 0;
     left: 0;
+    margin: 0 auto;
     top: 14rem;
+  }
+
+  .anxiousease input {
+    width: 80% !important;
+  }
+
+  .anxiousbox {
+    flex-direction: column !important;
   }
 
   .securityMsg {
@@ -337,7 +341,6 @@ p {
     left: 0;
     right: 0;
     top: 14rem;
-    padding-bottom: 7.5rem;
     margin: 0 auto;
   }
 }
@@ -449,8 +452,9 @@ p {
   background-color: #f4efec;
   padding: 1.5rem 0rem;
   border-radius: 2rem;
-  max-width: 60vw;
-  width: 100%;
+  width: 60vw;
+  position: absolute;
+  top: 12.5rem;
   right: 0;
   left: 0;
   margin: 0 auto;
@@ -458,7 +462,7 @@ p {
 
 .anxiousease input {
   background-color: white;
-  border: #277585 1px solid;
+  border: #277585 2px solid;
   border-radius: 0.5rem;
   padding: 1rem 1rem;
   width: 90%;
@@ -470,6 +474,7 @@ p {
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   float: right;
+
   margin-right: 2.5rem;
   font-weight: bold;
   color: white;
@@ -499,60 +504,4 @@ p {
 
 .Clarity {
   font-family: "Architype Bayer-type W90", sans-serif;
-}
-
-/* Portrait lock styles */
-.app-container {
-  height: 100vh;
-  width: 100vw;
-  position: relative;
-}
-
-.orientation-message {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #ffffff;
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.orientation-content {
-  padding: 20px;
-  max-width: 80%;
-}
-
-.rotate-icon {
-  font-size: 3rem;
-  display: block;
-  margin-bottom: 15px;
-  animation: rotate 2s infinite linear;
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Lock screen for portrait orientation */
-@media screen and (orientation: portrait) {
-  .orientation-message {
-    display: none;
-  }
-}
-
-.hero {
-  /* its a box at the top of the page, bring it to the center */
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
 }

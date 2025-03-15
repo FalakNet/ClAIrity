@@ -140,7 +140,7 @@ function Counselor() {
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
             
-            <p style={{ fontFamily: "montserrat alternates", fontWeight: 700 }}>
+            <p style={{ fontFamily: "montserrat alternates", fontWeight: 700 }} onClick={() => window.location.replace("/")}>
             <span className="Clarity">clairity</span> Chat
             </p>
           </div>
