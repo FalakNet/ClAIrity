@@ -68,52 +68,55 @@ function Index() {
           </>
         )}
       </div>
-      <div>
-        <div style={{ display: "flex", justifyContent: "space-around" }}>
-          <h1 className="Clarity">clairity</h1>
-          <img
-            src={falakLogo}
-            alt="Falak Logo"
-            className="logo"
-            style={{
-              fill: "#79b4b0",
-              display: window.innerWidth <= 768 ? "none" : "block",
-            }}
-          />
+      <div className="hero">
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-around" }}>
+            <h1 className="Clarity">clairity</h1>
+            <img
+              src={falakLogo}
+              alt="Falak Logo"
+              className="logo"
+              style={{
+                fill: "#79b4b0",
+                display: window.innerWidth <= 768 ? "none" : "block",
+              }}
+            />
+          </div>
+          <h1>Clairity Portal</h1>
         </div>
-        <h1>Clairity Portal</h1>
-      </div>
-      <p>
-        Your AI-powered mental health companion. Share how you feel and get
-        instant support for the challenges you face. Connect with a counselor to
-        resolve your issues and find the care you need, when you need it most.
-      </p>
+        <p>
+          Your AI-powered mental health companion. Share how you feel and get
+          instant support for the challenges you face. Connect with a counselor
+          to resolve your issues and find the care you need, when you need it
+          most.
+        </p>
 
-      <div
-        style={{
-          display: "flex",
-          gap: "1.5rem",
-          justifyContent: "center",
-          flexDirection: window.innerWidth <= 768 ? "column" : "row",
-        }}
-      >
-        <Link to="/counselor">
-          <button className="homebutton">AI Counselor</button>
-        </Link>
-        <Link to="/anxiousease">
-          <button className="homebutton">AnxiousEase</button>
-        </Link>
-        {/* <Link to="/login"><button className='homebutton'>Login</button></Link>
+        <div
+          style={{
+            display: "flex",
+            gap: "1.5rem",
+            justifyContent: "center",
+            flexDirection: window.innerWidth <= 768 ? "column" : "row",
+          }}
+        >
+          <Link to="/counselor">
+            <button className="homebutton">AI Counselor</button>
+          </Link>
+          <Link to="/anxiousease">
+            <button className="homebutton">AnxiousEase</button>
+          </Link>
+          {/* <Link to="/login"><button className='homebutton'>Login</button></Link>
         <Link to="/signup"><button className='homebutton'>Signup</button></Link> */}
-      </div>
+        </div>
 
-      <p className="falak">
-        A Falak Project
-        <br />
-        <a href="https://www.falaknet.com/" target="_blank">
-          www.falaknet.com
-        </a>
-      </p>
+        <p className="falak">
+          A Falak Project
+          <br />
+          <a href="https://www.falaknet.com/" target="_blank">
+            www.falaknet.com
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

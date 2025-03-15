@@ -91,7 +91,7 @@ function AnxiousEase() {
 
   return (
     <div>
-      <div className="header" style={{ position: "relative" }}>
+      <div className="header">
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
             {/* <img
