@@ -22,7 +22,7 @@ function Index() {
             style={{ fill: "#79b4b0" }}
           />
         </div>
-        <h1>Wellspace Portal</h1>
+        <h1>Clarity Portal</h1>
       </div>
       <p>
         Your AI-powered mental health companion. Share how you feel and get
@@ -33,8 +33,8 @@ function Index() {
 
 {/*  */}
       <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center", flexDirection: window.innerWidth <= 768 ? "column" : "row" }}>
-        <Link to="/counselor"><button>AI Counselor</button></Link>
-        <Link to="/anxiousease"><button>AnxiousEase</button></Link>
+        <Link to="/counselor"><button className='homebutton'>AI Counselor</button></Link>
+        <Link to="/anxiousease"><button className='homebutton'>AnxiousEase</button></Link>
       </div>
 
       <p className="falak">

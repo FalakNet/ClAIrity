@@ -1,6 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Climate+Crisis&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
 @import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/all.css");
 @import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-duotone-thin.css");
@@ -16,7 +18,7 @@
 @import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/duotone-light.css");
 
 #root {
-  max-width: 1280px;
+  width: 60vw;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
@@ -48,7 +50,7 @@ h1 {
   color: #277585;
 }
 
-button {
+.homebutton {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -60,21 +62,15 @@ button {
   transition: border-color 0.25s;
   white-space: nowrap;
 }
-button:hover {
+.homebutton:hover {
   border-color: #646cff;
 }
-button:focus,
-button:focus-visible {
+.homebutton:focus,
+.homebutton:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-p {
-  font-size: 1.75em;
-  line-height: 1.75;
-  font-weight: 400;
-}
-
-button {
+.homebutton {
   display: inline-block;
   width: auto;
   padding: 1.5rem 3rem 1.5rem 3rem;
@@ -82,6 +78,12 @@ button {
   background-color: #277585;
   font-size: 1.5rem;
   white-space: nowrap;
+}
+
+p {
+  font-size: 1.75em;
+  line-height: 1.75;
+  font-weight: 400;
 }
 
 .logo {
@@ -195,9 +197,86 @@ button {
   padding-right: 5px;
 }
 
-.username {
+.name {
   font-weight: 800;
-  font-family: 'Montserrat Alternates';
+  font-family: "Montserrat Alternates";
   font-size: 1.5rem;
   color: #000;
+}
+
+.input {
+  padding: 0.5rem 2rem;
+  border-radius: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-self: center;
+  background-color: #e1f4ea;
+  position: fixed;
+  bottom: 1.5rem;
+  width: 55vw;
+  margin: 0 auto;
+  /* center  */
+  left: 0;
+  right: 0;
+}
+
+.input input {
+  color: #3d3027;
+  font-weight: 700;
+  border: none;
+  background-color: transparent;
+  width: 80%;
+  font-size: 1.1rem;
+  font-family: "Montserrat";
+}
+
+.input input:focus {
+  outline: none;
+}
+
+.input button {
+  align-items: center;
+  width: 1rem;
+  display: inline-flex;
+  border: 1px solid transparent;
+  padding: 0.5em 0.5em;
+  font-weight: 500;
+  font-family: inherit;
+  color: #277585;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  white-space: nowrap;
+  display: inline-block;
+  width: auto;
+  border-radius: 1rem;
+  background-color: transparent;
+  font-size: 1.5rem;
+  transition: 0.5s ease all;
+}
+.input button:hover {
+  background-color: #beecd4;
+}
+
+.chatbox {
+  padding-bottom: 1.5rem;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+}
+
+.header {
+  position: fixed;
+  top: 0rem;
+  width: 55vw;
+  margin: 0 auto;
+  /* center  */
+  left: 0;
+  right: 0;
+  /* blur the stuff behind it */
+  backdrop-filter: blur(10px);
+  background-color: #e9e8e8;
+  border-radius: 1rem;
+  padding: 1rem 5rem;
+
 }
