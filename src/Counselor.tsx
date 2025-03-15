@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Adjust the import path as necessary
 import "./App.css";
+import { Link } from "react-router-dom";
 
 // import VITE_GEMINI_API_KEY from .env (this is vite react app)
 
@@ -62,7 +64,9 @@ function Counselor() {
     setIsTyping(false); // Hide typing indicator
   };
 
-  const fetchGoogleGeminiResponse = async (conversation: { id: string; sender: string; text: string }[]) => {
+  const fetchGoogleGeminiResponse = async (
+    conversation: { id: string; sender: string; text: string }[]
+  ) => {
     try {
       const conversationHistory = conversation
         .map((msg) => `${msg.sender}: ${msg.text}`)
@@ -132,25 +136,37 @@ function Counselor() {
       text: `Hey ${firstName}, How do you feel today?`,
     };
     setMessages([welcomeMessage]);
-  }, []);
+  }, [userName]);
 
   return (
     <div>
       <div className="header">
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
-            
-            <p style={{ fontFamily: "montserrat alternates", fontWeight: 700 }} onClick={() => window.location.replace("/")}>
-            <span className="Clarity">clairity</span> Chat
-            </p>
+            <Link to="/">
+              <p
+                style={{
+                  fontFamily: "montserrat alternates",
+                  fontWeight: 700,
+                  color: "#277585",
+                }}
+              >
+                <span className="Clarity">clairity</span> Chat
+              </p>
+            </Link>
           </div>
 
           <div
             className="profile"
-            style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#3d3027" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              color: "#3d3027",
+            }}
           >
             <span className="name">{userName}</span>
-            <i className="fas fa-circle"  style={{fontSize: "1.5rem"}}></i>
+            <i className="fas fa-circle" style={{ fontSize: "1.5rem" }}></i>
           </div>
         </div>
 

@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
 function Signup() {
@@ -11,37 +13,83 @@ function Signup() {
     e.preventDefault();
     const user = { name, email, password };
     localStorage.setItem(email, JSON.stringify(user));
-    document.cookie = `name=${name}; path=/`;
+    
+    // Set cookie to never expire by using a far future date
+    const farFutureDate = new Date(9999, 11, 31).toUTCString();
+    document.cookie = `name=${name}; path=/; expires=${farFutureDate}`;
+    
     navigate('/');
   };
 
   return (
     <div>
-      <h2>Signup</h2>
-      <form onSubmit={handleSignup}>
+
+<p
+        style={{
+          fontFamily: "montserrat alternates",
+          fontWeight: 700,
+          fontSize: "3rem",
+          color: "#277585",
+        }}
+      >
+        <span className="Clarity">clairity</span> Sign Up
+      </p>
+      <form onSubmit={handleSignup} style={{ height: "100%" }}>
+
+      <label>Name</label>
         <input
+          className="authInput"
           type="text"
           placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          required
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSignup(e as any);
+            }
+          }}
         />
+        <br />
+
+        <label>Email</label>
         <input
+          className="authInput"
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          required
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSignup(e as any);
+            }
+          }}
         />
+        <br />
+        <label>Password</label>
+
         <input
+          className="authInput"
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          required
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSignup(e as any);
+            }
+          }}
         />
-        <button type="submit">Signup</button>
+        <br />
+        <button type="submit" className="authButton">
+          {" "}
+          Login
+        </button>
       </form>
+
+      <p>
+                Already have an account? <Link to="/login">Log In</Link>
+              </p>
+    
     </div>
   );
 }

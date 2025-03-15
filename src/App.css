@@ -329,6 +329,10 @@ p {
     flex-direction: column !important;
   }
 
+  .authInput{ 
+    width: 80% !important;
+  }
+
   .securityMsg {
     width: 90%;
     border-radius: 1rem;
@@ -406,14 +410,25 @@ p {
   animation: fadeIn 0.5s ease-in-out;
 }
 
+.fade-out {
+  animation: fadeOut 0.5s ease-in-out forwards;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }
 
@@ -504,4 +519,72 @@ p {
 
 .Clarity {
   font-family: "Architype Bayer-type W90", sans-serif;
+}
+
+.fade-in {
+  opacity: 1;
+}
+
+.fade-out {
+  opacity: 0;
+}
+
+.fade-in-delayed {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in forwards;
+  animation-delay: 0.5s;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+form label {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.25rem;
+  color: #277585;
+  text-align: left;
+  width: 100%;
+}
+
+.authInput {
+  padding: 1rem 2rem;
+  border-radius: 1rem;
+  background-color: #e1f4ea;
+  color: #3d3027;
+  font-weight: 700;
+  border: none;
+  width: 25vw;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+
+  font-size: 1.1rem;
+  font-family: "Montserrat";
+}
+.authInput:focus {
+  outline: none;
+}
+
+.authButton {
+  text-align: center;
+  height: 55px;
+  border: 1px solid transparent;
+  padding: 0.5rem 3rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: #277585;
+  cursor: pointer;
+  white-space: nowrap;
+  border-radius: 1rem;
+  font-size: 1.5rem;
+  background-color: #e1f4ea;
+  transition: 0.5s ease all;
+}
+.authButton:hover {
+  background-color: #beecd4;
 }

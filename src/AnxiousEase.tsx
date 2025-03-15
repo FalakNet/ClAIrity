@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Adjust the import path as necessary
 import "./App.css";
 
@@ -6,7 +7,6 @@ import "./App.css";
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
 
 function getCookie(name: string): string | undefined {
   const value = `; ${document.cookie}`;
@@ -71,13 +71,30 @@ function AnxiousEase() {
 
       // Severity score color codes
       const severityImages = {
-        "1": window.innerWidth > 768 ? "https://placehold.co/200/green/white?text=1" : "https://placehold.co/400x100/green/white?text=1",
-        "2": window.innerWidth > 768 ? "https://placehold.co/200/lightgreen/white?text=2" : "https://placehold.co/400x100/lightgreen/white?text=2",
-        "3": window.innerWidth > 768 ? "https://placehold.co/200/gold/white?text=3" : "https://placehold.co/400x100/gold/white?text=3",
-        "4": window.innerWidth > 768 ? "https://placehold.co/200/cd5c5c/white?text=4" : "https://placehold.co/400x100/cd5c5c/white?text=4",
-        "5": window.innerWidth > 768 ? "https://placehold.co/200/red/white?text=5" : "https://placehold.co/400x100/red/white?text=5",
+        "1":
+          window.innerWidth > 768
+            ? "https://placehold.co/200/green/white?text=1"
+            : "https://placehold.co/400x100/green/white?text=1",
+        "2":
+          window.innerWidth > 768
+            ? "https://placehold.co/200/lightgreen/white?text=2"
+            : "https://placehold.co/400x100/lightgreen/white?text=2",
+        "3":
+          window.innerWidth > 768
+            ? "https://placehold.co/200/gold/white?text=3"
+            : "https://placehold.co/400x100/gold/white?text=3",
+        "4":
+          window.innerWidth > 768
+            ? "https://placehold.co/200/cd5c5c/white?text=4"
+            : "https://placehold.co/400x100/cd5c5c/white?text=4",
+        "5":
+          window.innerWidth > 768
+            ? "https://placehold.co/200/red/white?text=5"
+            : "https://placehold.co/400x100/red/white?text=5",
       };
-      setServImg(severityImages[severityScore.trim() as keyof typeof severityImages]);
+      setServImg(
+        severityImages[severityScore.trim() as keyof typeof severityImages]
+      );
       setQuote(quote);
       setEncouragement(encouragement);
       setIdeas(ideas);
@@ -89,15 +106,24 @@ function AnxiousEase() {
     }
   };
 
+  
+
   return (
     <div>
       <div className="header">
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
-            
-            <p style={{ fontFamily: "montserrat alternates", fontWeight: 700 }} onClick={() => window.location.replace("/")}>
-              <span className="Clarity">clairity</span> AnxiousEase
-            </p>
+            <Link to="/">
+              <p
+                style={{
+                  fontFamily: "montserrat alternates",
+                  fontWeight: 700,
+                  color: "#277585",
+                }}
+              >
+                <span className="Clarity">clairity</span> AnxiousEase
+              </p>
+            </Link>
           </div>
 
           <div
@@ -147,22 +173,22 @@ function AnxiousEase() {
         <br />
 
         {response && (
-            <div className="anxiousbox">
+          <div className="anxiousbox">
             {/* flex direction row if desktop or column if phone */}
             <div
               style={{
-              display: "flex",
-              gap: "1rem",
-              flexDirection: window.innerWidth > 768 ? "row" : "column",
+                display: "flex",
+                gap: "1rem",
+                flexDirection: window.innerWidth > 768 ? "row" : "column",
               }}
             >
               <img src={servImg} alt="Severity Score" />
               <div>
-              <p style={{ fontSize: "1rem" }}>{response}</p>
-              <h2>Severity Score: {severityScore}</h2>
+                <p style={{ fontSize: "1rem" }}>{response}</p>
+                <h2>Severity Score: {severityScore}</h2>
               </div>
             </div>
-            </div>
+          </div>
         )}
 
         {response && (
@@ -181,26 +207,34 @@ function AnxiousEase() {
                 <h2>How to help?</h2>
                 <div
                   style={{
-                  fontSize: "0.75rem",
-                  textAlign: "center",
-                  display: "flex",
-                  flexDirection: window.innerWidth > 768 ? "row" : "column",
+                    fontSize: "0.75rem",
+                    textAlign: "center",
+                    display: "flex",
+                    flexDirection: window.innerWidth > 768 ? "row" : "column",
                   }}
                 >
                   {ideas.map((idea, index) => (
-                    <div key={index} style={{ marginBottom: "1rem", display: "flex", alignItems: "center" }}>
-                    <p>{idea.split("|").join(" | ")}</p>
-                    {index < ideas.length - 1 && (
-                      <hr
+                    <div
+                      key={index}
                       style={{
-                        margin: window.innerWidth > 768 ? "0 1rem" : "1rem 0",
-                        height: window.innerWidth > 768 ? "100%" : "1px",
-                        width: window.innerWidth > 768 ? "1px" : "100%",
-                        backgroundColor: "black",
-                        border: "none",
+                        marginBottom: "1rem",
+                        display: "flex",
+                        alignItems: "center",
                       }}
-                      />
-                    )}
+                    >
+                      <p>{idea.split("|").join(" | ")}</p>
+                      {index < ideas.length - 1 && (
+                        <hr
+                          style={{
+                            margin:
+                              window.innerWidth > 768 ? "0 1rem" : "1rem 0",
+                            height: window.innerWidth > 768 ? "100%" : "1px",
+                            width: window.innerWidth > 768 ? "1px" : "100%",
+                            backgroundColor: "black",
+                            border: "none",
+                          }}
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
