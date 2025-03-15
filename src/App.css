@@ -1,0 +1,203 @@
+@import url("https://fonts.googleapis.com/css2?family=Climate+Crisis&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/all.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-duotone-thin.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-duotone-solid.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-duotone-regular.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-duotone-light.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-thin.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-solid.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-regular.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-light.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/duotone-thin.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/duotone-regular.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/duotone-light.css");
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  font-family: "Comfortaa", system-ui, sans-serif;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 4.5em;
+  line-height: 1.1;
+  font-weight: 100;
+  font-family: "Climate Crisis", system-ui, sans-serif;
+  color: #277585;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  white-space: nowrap;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+p {
+  font-size: 1.75em;
+  line-height: 1.75;
+  font-weight: 400;
+}
+
+button {
+  display: inline-block;
+  width: auto;
+  padding: 1.5rem 3rem 1.5rem 3rem;
+  border-radius: 10rem;
+  background-color: #277585;
+  font-size: 1.5rem;
+  white-space: nowrap;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.falak {
+  font-family: "Montserrat Alternates", system-ui, sans-serif;
+  font-weight: bold;
+}
+
+.falak a {
+  color: #277585;
+}
+
+@media (max-width: 768px) {
+  #root {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 3.5em;
+  }
+
+  p {
+    font-size: 2em;
+  }
+
+  button {
+    padding: 1.5rem 3rem;
+    font-size: 2rem;
+    white-space: nowrap;
+  }
+
+  .card {
+    padding: 1em;
+  }
+
+  .logo {
+    height: 5em;
+    padding: 1em;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 2.5em;
+  }
+
+  p {
+    font-size: 1.5em;
+  }
+
+  button {
+    padding: 1rem 2rem;
+    font-size: 1.5rem;
+    color: white;
+    white-space: nowrap;
+  }
+
+  .logo {
+    height: 5em;
+    padding: 0.5em;
+  }
+}
+
+.securityMsg {
+  text-align: center;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  background-color: #fff;
+  color: gray;
+  border-radius: 10rem;
+  font-size: 1rem;
+}
+
+.far,
+.fas {
+  padding-right: 5px;
+}
+
+.username {
+  font-weight: 800;
+  font-family: 'Montserrat Alternates';
+  font-size: 1.5rem;
+  color: #000;
+}
