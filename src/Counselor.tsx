@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Adjust the import path as necessary
 import "./App.css";
 import { Link } from "react-router-dom";
+import { sendNotification } from './noticall.js';
 
 // import VITE_GEMINI_API_KEY from .env (this is vite react app)
 
@@ -92,9 +93,24 @@ function Counselor() {
     // Check for suicide risk
     const riskResponse = await checkSuicideRisk(updatedMessages);
     if (riskResponse.toLowerCase().includes("yes")) {
+      alert(
+        "Authorities Notified..."
+      );
+
       // Use hardcoded coordinates
-      alert(`Police have been alerted`);
-      // Here you can add the logic to send the message to the police
+      const latitude = 25.132417;
+      const longitude = 55.422028;
+      const userPhone = getCookie("phone");
+      const policeMessage = await createPoliceMessage(updatedMessages, latitude, longitude, userName, userPhone);
+      
+      // Send the police message to the notification API
+      sendNotification(policeMessage)
+        .then(response => {
+          console.log("Notification sent successfully:", response);
+        })
+        .catch(error => {
+          console.error("Error sending notification:", error);
+        });
     }
 
     setIsTyping(false); // Hide typing indicator
