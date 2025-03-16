@@ -1,4 +1,4 @@
-import notificationapi from "notificationapi-node-server-sdk";
+// import notificationapi from "notificationapi-node-server-sdk";
 // const notificationapi = require('notificationapi-node-server-sdk').default
 
 notificationapi.init(

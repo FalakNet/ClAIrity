@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Adjust the import path as necessary
 import "./App.css";
 import { Link } from "react-router-dom";
-import { sendNotification } from './noticall.js';
+// import { sendNotification } from './noticall.js';
 
 // import VITE_GEMINI_API_KEY from .env (this is vite react app)
 
@@ -102,15 +102,9 @@ function Counselor() {
       const longitude = 55.422028;
       const userPhone = getCookie("phone");
       const policeMessage = await createPoliceMessage(updatedMessages, latitude, longitude, userName, userPhone);
+
+      console.log(policeMessage)
       
-      // Send the police message to the notification API
-      sendNotification(policeMessage)
-        .then(response => {
-          console.log("Notification sent successfully:", response);
-        })
-        .catch(error => {
-          console.error("Error sending notification:", error);
-        });
     }
 
     setIsTyping(false); // Hide typing indicator
