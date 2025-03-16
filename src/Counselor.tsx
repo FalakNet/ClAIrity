@@ -15,7 +15,6 @@ declare global {
   }
 }
 
-
 function getCookie(name: string): string | undefined {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -93,16 +92,8 @@ function Counselor() {
     // Check for suicide risk
     const riskResponse = await checkSuicideRisk(updatedMessages);
     if (riskResponse.toLowerCase().includes("yes")) {
-      alert(
-        "This conversation suggests risk to safety. Please contact a crisis helpline: National Suicide Prevention Lifeline at 988 or 1-800-273-8255"
-      );
-
       // Use hardcoded coordinates
-      const latitude = 25.132417;
-      const longitude = 55.422028;
-      const userPhone = getCookie("phone");
-      const policeMessage = await createPoliceMessage(updatedMessages, latitude, longitude, userName, userPhone);
-      alert(`${policeMessage} The user's phone number is ${userPhone}`);
+      alert(`Police have been alerted`);
       // Here you can add the logic to send the message to the police
     }
 
