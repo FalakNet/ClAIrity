@@ -7,6 +7,7 @@ function Index() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [isFading, setIsFading] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     const name = getCookie("name");
@@ -16,6 +17,14 @@ function Index() {
     } else {
       setIsLoggedIn(false);
     }
+    setTimeout(() => setShowSplash(false), 2000); // Hide splash screen after 3 seconds
+
+    // Disable scrolling
+    document.body.style.overflow = "hidden";
+    return () => {
+      // Re-enable scrolling when component unmounts
+      document.body.style.overflow = "auto";
+    };
   }, []);
 
   const handleLogout = () => {
@@ -27,6 +36,14 @@ function Index() {
       setIsFading(false);
     }, 500); // Duration should match CSS transition time
   };
+
+  if (showSplash) {
+    return (
+      <div className="splash-screen" style={{ position: "absolute", top: "25%", left: 0, right: 0, bottom: 0 }}>
+        <h1 className="splash-text logo">clairity</h1>
+      </div>
+    );
+  }
 
   return (
     <div className="card">
