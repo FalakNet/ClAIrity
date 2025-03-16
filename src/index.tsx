@@ -7,8 +7,7 @@ function Index() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [isFading, setIsFading] = useState(false);
-  const [showSplash, setShowSplash] = useState(true);
-
+  
   useEffect(() => {
     const name = getCookie("name");
     if (name) {
@@ -17,14 +16,7 @@ function Index() {
     } else {
       setIsLoggedIn(false);
     }
-    setTimeout(() => setShowSplash(false), 2000); // Hide splash screen after 3 seconds
     
-    
-    // fade out the splash screen to the home
-    setTimeout(() => {
-      document.querySelector(".splash-screen")?.classList.add("fade-out");
-    }, 1000);
-
     // Disable scrolling
     document.body.style.overflow = "hidden";
     return () => {
@@ -43,22 +35,6 @@ function Index() {
     }, 500); // Duration should match CSS transition time
   };
 
-  if (showSplash) {
-    return (
-      <div
-        className="splash-screen"
-        style={{
-          position: "absolute",
-          top: window.innerWidth <= 768 ? "40%" : "35%",
-          left: 0,
-          right: 0,
-          bottom: 0,
-        }}
-      >
-        <h1 style={{ fontFamily: "Architype Bayer-type W90;", fontSize: "5rem" }}>clairity</h1>
-      </div>
-    );
-  }
 
   return (
     <div className="card">
