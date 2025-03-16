@@ -18,6 +18,12 @@ function Index() {
       setIsLoggedIn(false);
     }
     setTimeout(() => setShowSplash(false), 2000); // Hide splash screen after 3 seconds
+    
+    
+    // fade out the splash screen to the home
+    setTimeout(() => {
+      document.querySelector(".splash-screen")?.classList.add("fade-out");
+    }, 1000);
 
     // Disable scrolling
     document.body.style.overflow = "hidden";
@@ -39,8 +45,17 @@ function Index() {
 
   if (showSplash) {
     return (
-      <div className="splash-screen" style={{ position: "absolute", top: "25%", left: 0, right: 0, bottom: 0 }}>
-        <h1 className="splash-text logo">clairity</h1>
+      <div
+        className="splash-screen"
+        style={{
+          position: "absolute",
+          top: window.innerWidth <= 768 ? "40%" : "35%",
+          left: 0,
+          right: 0,
+          bottom: 0,
+        }}
+      >
+        <h1 style={{ fontFamily: "Architype Bayer-type W90;", fontSize: "5rem" }}>clairity</h1>
       </div>
     );
   }
