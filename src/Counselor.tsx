@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Adjust the import path as necessary
 import "./App.css";
 import { Link } from "react-router-dom";
-import notificationapi from 'notificationapi-node-server-sdk'
 
 // import VITE_GEMINI_API_KEY from .env (this is vite react app)
 
@@ -16,13 +15,6 @@ declare global {
   }
 }
 
-notificationapi.init(
-  import.meta.env.VITE_NOTIFICATION_API_CLIENT_ID, // clientId
-  import.meta.env.VITE_NOTIFICATION_API_CLIENT_SECRET,// clientSecret
-   {
-    baseURL: 'https://api.eu.notificationapi.com'
-  }
-)
 
 function getCookie(name: string): string | undefined {
   const value = `; ${document.cookie}`;
@@ -101,26 +93,17 @@ function Counselor() {
     // Check for suicide risk
     const riskResponse = await checkSuicideRisk(updatedMessages);
     if (riskResponse.toLowerCase().includes("yes")) {
-     
+      alert(
+        "This conversation suggests risk to safety. Please contact a crisis helpline: National Suicide Prevention Lifeline at 988 or 1-800-273-8255"
+      );
 
       // Use hardcoded coordinates
       const latitude = 25.132417;
       const longitude = 55.422028;
       const userPhone = getCookie("phone");
       const policeMessage = await createPoliceMessage(updatedMessages, latitude, longitude, userName, userPhone);
-      
-      // Send the police message to the notification API
-      notificationapi.send({
-        notificationId: 'suicide_warning',
-        user: {
-          id: "ar1vuog@gmail.com",
-          email: "ar1vuog@gmail.com",
-          number: "+971547545175" // Replace with your phone number, use format [+][country code][area code][local number]
-        },
-        mergeTags: {
-          "comment": policeMessage
-        }
-      });
+      alert(`${policeMessage} The user's phone number is ${userPhone}`);
+      // Here you can add the logic to send the message to the police
     }
 
     setIsTyping(false); // Hide typing indicator

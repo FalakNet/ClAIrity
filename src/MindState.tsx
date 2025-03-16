@@ -487,9 +487,12 @@ function AnxiousEase() {
           disabled={currentQuestion === 0}
           style={{
             backgroundColor: currentQuestion === 0 ? "#e0e0e0" : "white",
-            border: currentQuestion === 0 ? "#c0c0c0 2px solid" : "#277585 2px solid",
+            border:
+              currentQuestion === 0 ? "#c0c0c0 2px solid" : "#277585 2px solid",
             borderRadius: "2rem",
             width: "10rem",
+            padding: "1rem",
+            fontSize: "1.25rem",
             color: currentQuestion === 0 ? "#a0a0a0" : "#277585",
             fontWeight: "bold",
           }}
@@ -502,6 +505,8 @@ function AnxiousEase() {
             backgroundColor: "#277585",
             border: "none",
             borderRadius: "2rem",
+            padding: "1rem",
+            fontSize: "1.25rem",
             width: "10rem",
             fontWeight: "bold",
           }}
@@ -510,7 +515,6 @@ function AnxiousEase() {
         </button>
       </div>
 
-     
       <style>{`
         .fade-in {
           opacity: 1;
