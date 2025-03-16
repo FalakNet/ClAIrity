@@ -7,16 +7,18 @@ function Signup() {
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
   const navigate = useNavigate();
 
   const handleSignup = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const user = { name, email, password };
+    const user = { name, email, password, phone };
     localStorage.setItem(email, JSON.stringify(user));
     
     // Set cookie to never expire by using a far future date
     const farFutureDate = new Date(9999, 11, 31).toUTCString();
     document.cookie = `name=${name}; path=/; expires=${farFutureDate}`;
+    document.cookie = `phone=${phone}; path=/; expires=${farFutureDate}`;
     
     navigate('/');
   };
@@ -82,13 +84,27 @@ function Signup() {
           }}
         />
         <br />
+        <label>Phone Number</label>
+        <input
+          className="authInput"
+          type="tel"
+          placeholder="Phone Number"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSignup(e as any);
+            }
+          }}
+        />
+        <br />
         <button type="submit" className="authButton">
           {" "}
           Sign Up
         </button>
       </form>
 
-      <p>
+      <p style={{ fontSize: "1.2rem" }}>
                 Already have an account? <Link to="/login">Log In</Link>
               </p>
     

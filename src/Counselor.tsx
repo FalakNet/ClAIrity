@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Adjust the import path as necessary
 import "./App.css";
 import { Link } from "react-router-dom";
+import notificationapi from 'notificationapi-node-server-sdk'
 
 // import VITE_GEMINI_API_KEY from .env (this is vite react app)
 
@@ -14,6 +15,14 @@ declare global {
     webkitSpeechRecognition: any;
   }
 }
+
+notificationapi.init(
+  import.meta.env.VITE_NOTIFICATION_API_CLIENT_ID, // clientId
+  import.meta.env.VITE_NOTIFICATION_API_CLIENT_SECRET,// clientSecret
+   {
+    baseURL: 'https://api.eu.notificationapi.com'
+  }
+)
 
 function getCookie(name: string): string | undefined {
   const value = `; ${document.cookie}`;
@@ -89,6 +98,31 @@ function Counselor() {
     const finalMessages = [...updatedMessages, aiMessage];
     setMessages(finalMessages);
 
+    // Check for suicide risk
+    const riskResponse = await checkSuicideRisk(updatedMessages);
+    if (riskResponse.toLowerCase().includes("yes")) {
+     
+
+      // Use hardcoded coordinates
+      const latitude = 25.132417;
+      const longitude = 55.422028;
+      const userPhone = getCookie("phone");
+      const policeMessage = await createPoliceMessage(updatedMessages, latitude, longitude, userName, userPhone);
+      
+      // Send the police message to the notification API
+      notificationapi.send({
+        notificationId: 'suicide_warning',
+        user: {
+          id: "ar1vuog@gmail.com",
+          email: "ar1vuog@gmail.com",
+          number: "+971547545175" // Replace with your phone number, use format [+][country code][area code][local number]
+        },
+        mergeTags: {
+          "comment": policeMessage
+        }
+      });
+    }
+
     setIsTyping(false); // Hide typing indicator
   };
 
@@ -107,6 +141,45 @@ function Counselor() {
     } catch (error) {
       console.error("Error fetching response from Google Gemini:", error);
       return "Sorry, I am unable to process your request at the moment.";
+    }
+  };
+
+  const checkSuicideRisk = async (
+    conversation: { id: string; sender: string; text: string }[]
+  ) => {
+    try {
+      const conversationHistory = conversation
+        .map((msg) => `${msg.sender}: ${msg.text}`)
+        .join("\n");
+      const result = await model.generateContent(
+        "You are Clairity, an AI trained to assess the risk of suicide based on conversation history. Respond with 'yes' if you think the person is at risk of suicide, otherwise respond with 'no'. Here is the conversation history: \n" +
+          conversationHistory
+      );
+      return result.response.text();
+    } catch (error) {
+      console.error("Error checking suicide risk with Google Gemini:", error);
+      return "no";
+    }
+  };
+
+  const createPoliceMessage = async (
+    conversation: { id: string; sender: string; text: string }[],
+    latitude: number,
+    longitude: number,
+    userName: string | undefined,
+    userPhone: string | undefined
+  ) => {
+    try {
+      const conversationHistory = conversation
+        .map((msg) => `${msg.sender}: ${msg.text}`)
+        .join("\n");
+      const result = await model.generateContent(
+        `You are Clairity, an AI trained to create emergency messages for the police. Based on the conversation history, the user's current location, and the user's name and phone number, create a message to be sent to the police. Here is the conversation history: \n${conversationHistory}\nUser's location: Latitude ${latitude}, Longitude ${longitude}\nUser's name: ${userName}\nUser's phone number: ${userPhone}. This is an emergency, do not redact the phone number. Please alert the authorities about the situation and the location.`
+      );
+      return result.response.text();
+    } catch (error) {
+      console.error("Error creating police message with Google Gemini:", error);
+      return "Unable to create a message for the police at the moment.";
     }
   };
 

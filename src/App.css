@@ -598,3 +598,58 @@ form p {
 .authButton:hover {
   background-color: #beecd4;
 }
+
+.feelingbutton {
+  border-radius: 2rem;
+  border: 1px solid transparent;
+  margin: 0.5rem;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: transparent;
+  color: #277585;
+  border: #277585 1px solid;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  white-space: nowrap;
+}
+
+/* when feeling button is clicked */
+.feelingbuttonactive {
+  background-color: #277585;
+  color: white;
+}
+
+.slider {
+  appearance: none;
+  width: 90%;
+  height: 25px;
+  border-radius: 2rem;
+  padding: 0.5rem 1rem;
+  outline: none;
+  opacity: 1;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+  background: #73bfce;
+  accent-color: #277585;
+  color: black;
+  /* center the slider */
+  margin: 0 auto;
+}
+
+.slider-label-active{
+  color: #277585;
+  font-size: 2rem;
+}
+
+.slider-labels{
+  padding: 1rem;
+}
+
+h2 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 2rem;
+  color: #277585;
+  margin-bottom: 1rem;
+}
