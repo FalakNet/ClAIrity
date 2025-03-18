@@ -1,19 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "./hooks/useAuth";
+import { getDisplayName } from "./lib/userUtils";
 import "./App.css";
-
-function getCookie(name: string): string | undefined {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    const part = parts.pop();
-    if (part) {
-      return part.split(";").shift();
-    }
-  }
-}
-
-const userName = getCookie("name");
 
 const feelingsMap: { [key: string]: string[] } = {
   "Very Pleasant": [
@@ -224,7 +213,14 @@ const factorsMap: { [key: string]: string[] } = {
   ],
 };
 
-function AnxiousEase() {
+function MindState() {
+  // Get user info from Supabase auth
+  const { user } = useAuth();
+  const userName = getDisplayName(user);
+  
+  // Use user ID for localStorage keys
+  const storageKey = `mindstate-data-${user?.id || "guest"}`;
+
   const [feeling, setFeeling] = useState("Neutral");
   const [question2Options, setQuestion2Options] = useState<string[]>([]);
   const [question2Selected, setQuestion2Selected] = useState<string[]>([]);
@@ -275,7 +271,7 @@ function AnxiousEase() {
       question2Selected,
       question3Selected,
     };
-    localStorage.setItem(`mindState_${Date.now()}`, JSON.stringify(data));
+    localStorage.setItem(storageKey, JSON.stringify(data));
     setMessage("State of Mind Logged");
     setFade("fade-out");
     setTimeout(() => {
@@ -298,8 +294,18 @@ function AnxiousEase() {
     setFeeling("Neutral");
   }, []);
 
+  useEffect(() => {
+    const savedData = localStorage.getItem(storageKey);
+    if (savedData) {
+      const data = JSON.parse(savedData);
+      setFeeling(data.feeling);
+      setQuestion2Selected(data.question2Selected);
+      setQuestion3Selected(data.question3Selected);
+    }
+  }, [storageKey]);
+
   return (
-    <div>
+    <div className="mindstate-container">
       <div className="header">
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -311,7 +317,7 @@ function AnxiousEase() {
                   color: "#277585",
                 }}
               >
-                <span className="Clarity">clairity</span> MindState
+                <span className="clarity">clairity</span> MindState
               </p>
             </Link>
           </div>
@@ -325,14 +331,17 @@ function AnxiousEase() {
               color: "#3d3027",
             }}
           >
-            <span className="name">{userName}</span>
+            <span className="name" style={{ cursor: "pointer" }}>
+              {userName}
+            </span>
             <i className="fas fa-circle" style={{ fontSize: "1.5rem" }}></i>
           </div>
         </div>
 
         <p className="securityMsg">
           {" "}
-          <i className="far fa-lock-keyhole"></i>Your data remains confidential.
+          <i className="far fa-lock-keyhole"></i> Your data remains
+          confidential.
         </p>
       </div>
       <br />
@@ -532,4 +541,4 @@ function AnxiousEase() {
   );
 }
 
-export default AnxiousEase;
+export default MindState;

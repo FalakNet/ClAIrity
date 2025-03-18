@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai"; // Adjust the import path as necessary
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { useAuth } from "./hooks/useAuth";
+import { getDisplayName } from "./lib/userUtils";
 import "./App.css";
 import { Link } from "react-router-dom";
-// import { sendNotification } from './noticall.js';
-
-// import VITE_GEMINI_API_KEY from .env (this is vite react app)
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -16,20 +15,11 @@ declare global {
   }
 }
 
-function getCookie(name: string): string | undefined {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    const part = parts.pop();
-    if (part) {
-      return part.split(";").shift();
-    }
-  }
-}
-
 function Counselor() {
-  const userName = getCookie("name");
-  const storageKey = `clairity-chat-${userName || "guest"}`;
+  // Get user info from Supabase auth
+  const { user } = useAuth();
+  const userName = getDisplayName(user);
+  const storageKey = `clairity-chat-${user?.id || "guest"}`;
 
   // Load messages from localStorage or initialize with empty array
   const [messages, setMessages] = useState<
@@ -47,15 +37,6 @@ function Counselor() {
   const [overlayClass, setOverlayClass] = useState("fade-out");
   const chatboxRef = useRef<HTMLDivElement>(null);
   const hasInitializedRef = useRef(false);
-
-  useEffect(() => {
-    if (userName) {
-      // ...existing code...
-    } else {
-      // ...existing code...
-      window.location.href = "/login"; // Redirect to login page if not logged in
-    }
-  }, [userName]);
 
   // Save messages to localStorage whenever they change
   useEffect(() => {
@@ -100,7 +81,7 @@ function Counselor() {
       // Use hardcoded coordinates
       const latitude = 25.132417;
       const longitude = 55.422028;
-      const userPhone = getCookie("phone");
+      const userPhone = user?.phone || user?.user_metadata?.phone;
       const policeMessage = await createPoliceMessage(updatedMessages, latitude, longitude, userName, userPhone);
 
       console.log(policeMessage)
@@ -215,17 +196,16 @@ function Counselor() {
 
   // Initialize with welcome message only if no messages exist
   useEffect(() => {
-    if (!hasInitializedRef.current && messages.length === 0 && userName) {
-      const firstName = userName.split(" ")[0];
+    if (!hasInitializedRef.current && messages.length === 0 && user) {
       const welcomeMessage = {
         id: generateId(),
         sender: "ai",
-        text: `Hey ${firstName}, How do you feel today?`,
+        text: `Hey ${userName}, How do you feel today?`,
       };
       setMessages([welcomeMessage]);
       hasInitializedRef.current = true;
     }
-  }, [userName, messages.length]);
+  }, [user, userName, messages.length]);
 
   return (
     <div>
@@ -240,7 +220,7 @@ function Counselor() {
                   color: "#277585",
                 }}
               >
-                <span className="Clarity">clairity</span> Chat
+                <span className="clarity">clairity</span> Chat
               </p>
             </Link>
           </div>

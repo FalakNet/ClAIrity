@@ -1,115 +1,200 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
+import './styles/auth.css';
 
-function Signup() {
-  const [name, setName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [phone, setPhone] = useState<string>('');
-  const navigate = useNavigate();
-
-  const handleSignup = (e: React.FormEvent<HTMLFormElement>) => {
+const Signup = () => {
+  // Form state
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isEmailSent, setIsEmailSent] = useState(false);
+  
+  // Get auth context and navigation
+  const { register, error: authError, loading } = useAuth();
+  
+  // Handle signup form submission
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const user = { name, email, password, phone };
-    localStorage.setItem(email, JSON.stringify(user));
+    setFormError(null);
     
-    // Set cookie to never expire by using a far future date
-    const farFutureDate = new Date(9999, 11, 31).toUTCString();
-    document.cookie = `name=${name}; path=/; expires=${farFutureDate}`;
-    document.cookie = `phone=${phone}; path=/; expires=${farFutureDate}`;
+    // Validate password match
+    if (password !== confirmPassword) {
+      setFormError("Passwords don't match");
+      return;
+    }
     
-    navigate('/');
+    // Validate password strength
+    if (password.length < 8) {
+      setFormError("Password must be at least 8 characters");
+      return;
+    }
+
+    // Validate terms agreement
+    if (!agreeToTerms) {
+      setFormError("You must agree to the Terms and Conditions");
+      return;
+    }
+    
+    try {
+      // Log the data being sent
+      console.log('Sending registration data:', { 
+        email, 
+        password, 
+        firstName, 
+        lastName 
+      });
+      
+      await register(email, password, { 
+        firstName, 
+        lastName,
+        redirectTo: `${window.location.origin}/auth/callback`
+      });
+      
+      // Check if email confirmation is required
+      setIsEmailSent(true);
+    } catch (error) {
+      setFormError((error as Error).message);
+    }
   };
 
+  // If verification email was sent, show confirmation message
+  if (isEmailSent) {
+    return (
+      <div className="auth-container">
+        <div className="auth-form-card">
+          <h1 className="auth-title">Check Your Email</h1>
+          <p className="auth-subtitle">
+            We've sent a confirmation email to <strong>{email}</strong>.<br/>
+            Please check your inbox and follow the instructions to complete your registration.
+          </p>
+          <div className="auth-links">
+            <p>
+              <Link to="/login">Return to Login</Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div>
-
-<Link to="/">
-        <p
-          style={{
-            fontFamily: "montserrat alternates",
-            fontWeight: 700,
-            fontSize: "3rem",
-            color: "#277585",
-          }}
-        >
-          <span className="Clarity">clairity</span> Sign Up
-        </p>
-      </Link>
-      <form onSubmit={handleSignup} style={{ height: "100%" }}>
-
-      <label>Name</label>
-        <input
-          className="authInput"
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSignup(e as any);
-            }
-          }}
-        />
-        <br />
-
-        <label>Email</label>
-        <input
-          className="authInput"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSignup(e as any);
-            }
-          }}
-        />
-        <br />
-        <label>Password</label>
-
-        <input
-          className="authInput"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSignup(e as any);
-            }
-          }}
-        />
-        <br />
-        <label>Phone Number</label>
-        <input
-          className="authInput"
-          type="tel"
-          placeholder="Phone Number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSignup(e as any);
-            }
-          }}
-        />
-        <br />
-        <button type="submit" className="authButton">
-          {" "}
-          Sign Up
-        </button>
-      </form>
-
-      <p style={{ fontSize: "1.2rem" }}>
-                Already have an account? <Link to="/login">Log In</Link>
-              </p>
-    
+    <div className="auth-container">
+      <div className="auth-form-card">
+        <h1 className="auth-title">clarity</h1>
+        <p className="auth-subtitle">Sign up for Clarity</p>
+        
+        {(formError || authError) && (
+          <div className="auth-error">{formError || authError}</div>
+        )}
+        
+        <form onSubmit={handleSubmit} className="auth-form">
+          {/* Name fields */}
+          <div className="form-row">
+            <div className="form-group half">
+              <label htmlFor="firstName">First Name</label>
+              <input
+                type="text"
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                disabled={loading}
+                placeholder="John"
+                className="auth-input"
+              />
+            </div>
+            
+            <div className="form-group half">
+              <label htmlFor="lastName">Last Name</label>
+              <input
+                type="text"
+                id="lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                disabled={loading}
+                placeholder="Doe"
+                className="auth-input"
+              />
+            </div>
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+              placeholder="your@email.com"
+              className="auth-input"
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+              placeholder="••••••••"
+              className="auth-input"
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              disabled={loading}
+              placeholder="••••••••"
+              className="auth-input"
+            />
+          </div>
+          
+          <div className="form-group checkbox-group">
+            <input
+              type="checkbox"
+              id="agreeToTerms"
+              checked={agreeToTerms}
+              onChange={(e) => setAgreeToTerms(e.target.checked)}
+              disabled={loading}
+              className="auth-checkbox"
+            />
+            <label htmlFor="agreeToTerms">
+              I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer">Terms and Conditions</a>
+            </label>
+          </div>
+          
+          <button 
+            type="submit" 
+            className="auth-button"
+            disabled={loading}
+          >
+            {loading ? 'Creating Account...' : 'Sign Up'}
+          </button>
+        </form>
+        
+        <div className="auth-links">
+          <p>
+            Already have an account? <Link to="/login">Log in</Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
 export default Signup;

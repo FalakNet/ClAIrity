@@ -1,0 +1,84 @@
+.index-container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.index-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.welcome-section {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.welcome-section h1 {
+  font-size: 2.5rem;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.welcome-message {
+  font-size: 1.2rem;
+  color: #6b7280;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.feature-card {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card h3 {
+  color: #4f46e5;
+  font-size: 1.25rem;
+  margin: 0 0 1rem;
+}
+
+.feature-card p {
+  color: #6b7280;
+  margin: 0 0 1.5rem;
+}
+
+.feature-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.feature-button:hover {
+  background-color: #4338ca;
+}
+
+@media (max-width: 768px) {
+  .welcome-section h1 {
+    font-size: 2rem;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}

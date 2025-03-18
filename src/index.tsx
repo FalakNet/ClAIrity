@@ -1,29 +1,21 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import falakLogo from "./assets/falak.svg";
+import { useAuth } from "./hooks/useAuth";
+import { getDisplayName } from "./lib/userUtils";
 import "./App.css";
 
 function Index() {
+  const { user } = useAuth();
+  const userName = getDisplayName(user);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
   const [isFading, setIsFading] = useState(false);
-  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    const name = getCookie("name");
-    if (name) {
+    if (user) {
       setIsLoggedIn(true);
-      setUserName(name);
     } else {
       setIsLoggedIn(false);
     }
-    setTimeout(() => setShowSplash(false), 2000); // Hide splash screen after 3 seconds
-    
-    
-    // fade out the splash screen to the home
-    setTimeout(() => {
-      document.querySelector(".splash-screen")?.classList.add("fade-out");
-    }, 1000);
 
     // Disable scrolling
     document.body.style.overflow = "hidden";
@@ -31,34 +23,16 @@ function Index() {
       // Re-enable scrolling when component unmounts
       document.body.style.overflow = "auto";
     };
-  }, []);
+  }, [user]);
 
   const handleLogout = () => {
     setIsFading(true);
     setTimeout(() => {
       document.cookie = "name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       setIsLoggedIn(false);
-      setUserName("");
       setIsFading(false);
     }, 500); // Duration should match CSS transition time
   };
-
-  if (showSplash) {
-    return (
-      <div
-        className="splash-screen"
-        style={{
-          position: "absolute",
-          top: window.innerWidth <= 768 ? "40%" : "35%",
-          left: 0,
-          right: 0,
-          bottom: 0,
-        }}
-      >
-        <h1 style={{ fontFamily: "Architype Bayer-type W90;", fontSize: "5rem" }}>clairity</h1>
-      </div>
-    );
-  }
 
   return (
     <div className="card">
@@ -120,15 +94,6 @@ function Index() {
         <div>
           <div style={{ display: "flex", justifyContent: "space-around" }}>
             <h1 className="Clarity">clairity</h1>
-            <img
-              src={falakLogo}
-              alt="Falak Logo"
-              className="logo"
-              style={{
-                fill: "#79b4b0",
-                display: window.innerWidth <= 768 ? "none" : "block",
-              }}
-            />
           </div>
         </div>
         <p style={{ width: "75%", margin: "auto", paddingBottom: "2rem" }}>
@@ -166,10 +131,3 @@ function Index() {
 }
 
 export default Index;
-
-function getCookie(name: string) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(";").shift() || "";
-  return "";
-}

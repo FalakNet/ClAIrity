@@ -1,0 +1,228 @@
+#root {
+  padding: 0;
+  width: 100%;
+}
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.auth-form-card {
+  width: 100%;
+  max-width: 550px; /* Increase max-width for desktop */
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.auth-title {
+  margin-bottom: 0.25rem; /* Reduced from 0.5rem */
+  font-size: 5rem;
+  font-weight: 700;
+  color: #277585;
+  text-align: center;
+}
+
+.auth-subtitle {
+  margin-bottom: 1rem; /* Reduced from 1.5rem */
+  color: #6b7280;
+  font-size: 2rem;
+  text-align: center;
+}
+
+.auth-form {
+  width: 100%; /* Make form take full width of card */
+  max-width: 500px; /* Maximum width for the form */
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+  width: 100%; /* Make form groups full width */
+  box-sizing: border-box;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group.half {
+  flex: 1;
+  min-width: 0; /* Prevent flex items from growing beyond container */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.auth-input {
+  padding: 1.5rem 2rem;
+  border-radius: 1rem;
+  background-color: #e1f4ea;
+  color: #3d3027;
+  font-weight: 700;
+  border: none;
+  width: 100%;
+  box-sizing: border-box; /* Critical for proper sizing */
+  outline: none;
+  border: transparent 2px solid;
+  font-size: 1.1rem;
+  font-family: "Montserrat";
+}
+
+/* Mobile version */
+@media (max-width: 768px) {
+  .auth-form-card {
+    padding: 1.5rem;
+    width: 100%;
+    max-width: none;
+  }
+
+  .auth-title {
+    font-size: 3rem;
+  }
+
+  .auth-subtitle {
+    font-size: 1.5rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .auth-form {
+    width: 100%;
+  }
+
+  .form-group {
+    width: 100%; /* Full width for mobile */
+  }
+
+  .auth-input {
+    padding: 1rem 1.5rem;
+    width: 100%;
+  }
+
+  .auth-button {
+    padding: 1rem 5rem !important;
+  }
+}
+
+.auth-input:focus {
+  border: #277585 2px solid;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  margin-top: 0.5rem;
+}
+
+.checkbox-group label {
+  margin-bottom: 0;
+}
+
+.auth-checkbox {
+  width: 16px;
+  height: 16px;
+  /* change design of the actual checkbox */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: 2px solid #277585;
+  border-radius: 1rem;
+  outline: none;  
+  cursor: pointer;
+  transition: 0.25s ease all;
+}
+
+.auth-checkbox:checked {
+  background-color: #277585;
+}
+
+.auth-button {
+  text-align: center;
+  border: 1px solid transparent;
+  padding: 1rem 3rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: #277585;
+  cursor: pointer;
+  white-space: nowrap;
+  border-radius: 1rem;
+  font-size: 1.5rem;
+  background-color: #beecd4;
+  transition: 0.5s ease all;
+}
+
+.auth-button:hover {
+  background-color: #277585;
+  color: #beecd4;
+}
+
+.auth-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.auth-links {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+.auth-links a {
+  color: #277585;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
+}
+
+.auth-error {
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: #b91c1c;
+  background-color: #fee2e2;
+  border-radius: 0.375rem;
+  border-left: 4px solid #ef4444;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #277585;
+  font-size: 3rem;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-weight: 700;
+  text-align: center;
+}
+
+form {
+  justify-content: initial;
+  height: auto;
+}

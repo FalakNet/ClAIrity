@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Adjust the import path as necessary
+import { useAuth } from "./hooks/useAuth";
+import { getDisplayName } from "./lib/userUtils";
 import "./App.css";
 
 // import VITE_GEMINI_API_KEY from .env (this is vite react app)
@@ -8,20 +10,11 @@ import "./App.css";
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-function getCookie(name: string): string | undefined {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    const part = parts.pop();
-    if (part) {
-      return part.split(";").shift();
-    }
-  }
-}
-
-const userName = getCookie("name");
-
 function AnxiousEase() {
+  // Get user info from Supabase auth
+  const { user } = useAuth();
+  const userName = getDisplayName(user);
+
   const [anxietyReason, setAnxietyReason] = useState("");
   const [response, setResponse] = useState("");
   const [severityScore, setSeverityScore] = useState("");
@@ -106,10 +99,8 @@ function AnxiousEase() {
     }
   };
 
-  
-
   return (
-    <div>
+    <div className="anxious-ease-container">
       <div className="header">
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -121,7 +112,7 @@ function AnxiousEase() {
                   color: "#277585",
                 }}
               >
-                <span className="Clarity">clairity</span> AnxiousEase
+                <span className="clarity">clairity</span> AnxiousEase
               </p>
             </Link>
           </div>
@@ -135,7 +126,9 @@ function AnxiousEase() {
               color: "#3d3027",
             }}
           >
-            <span className="name">{userName}</span>
+            <span className="name" style={{ cursor: "pointer" }}>
+              {userName}
+            </span>
             <i className="fas fa-circle" style={{ fontSize: "1.5rem" }}></i>
           </div>
         </div>
