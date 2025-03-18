@@ -9,14 +9,12 @@ function Index() {
   const userName = getDisplayName(user);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isFading, setIsFading] = useState(false);
-
   useEffect(() => {
     if (user) {
       setIsLoggedIn(true);
     } else {
       setIsLoggedIn(false);
     }
-
     // Disable scrolling
     document.body.style.overflow = "hidden";
     return () => {
