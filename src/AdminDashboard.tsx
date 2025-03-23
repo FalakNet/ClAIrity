@@ -171,7 +171,7 @@ function AdminDashboard() {
         // Fetch flagged cases - updated to get severity 4 or higher and include user_id
         const { data: flaggedData, error: flaggedError } = await supabase
           .from("anxious_summaries")
-          .select("id, user_id, user, severity, user_input") 
+          .select("id, user_id, user, severity, user_input")
           .gte("severity", "4");
         if (flaggedError) throw flaggedError;
         setFlaggedCases(flaggedData);
@@ -360,9 +360,9 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="admin-dashboard">
-      <div className="header" style={{ position: "relative" }}>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+    <div className="admin-dashboard" style={{ width: "auto" }}>
+      <div className="header" style={{ position: "relative", width: "100%", padding: "0", grid: "10fr 1fr" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", grid: "10fr 1fr" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
             <Link to="/">
               <p
@@ -382,11 +382,11 @@ function AdminDashboard() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "0.5rem",
+              gap: "1rem",
               color: "#3d3027",
             }}
           >
-            <span className="name" style={{ cursor: "pointer" }}>
+            <span className="name" style={{ cursor: "pointer", width: "auto" }}>
               {userName}
             </span>
             <i className="fas fa-circle" style={{ fontSize: "1.5rem" }}></i>
@@ -468,8 +468,10 @@ function AdminDashboard() {
       <div
         style={{
           display: "flex",
+          flexDirection: window.innerWidth < 768 ? "column" : "row",
           justifyContent: "space-between",
-          width: "80%",
+          width: window.innerWidth < 768 ? "auto" : "80%",
+
           margin: "0 auto",
           gap: "2rem",
         }}
@@ -575,23 +577,33 @@ function AdminDashboard() {
             </ul>
           </div>
         </div>
-        <div className="dashboard-section" style={{ width: "100%" }}>
+        <div
+          className="dashboard-section"
+          style={{
+            width: window.innerWidth < 768 ? "auto" : "80%",
+          }}
+        >
           <h2>High Severity Cases</h2>
           {flaggedCases.length > 0 ? (
             <ul>
               {flaggedCases.slice(-4).map((caseItem) => (
-              <li
-                key={caseItem.id}
-                className={`severity-${caseItem.severity}`}
-                style={{ textAlign: "left" }}
-              >
-                <strong>Severity:</strong> {caseItem.severity} {" "} |{" "}
-                <strong>Student:</strong>{" "}
-                <Link to={`/admin/students/${caseItem.user_id || caseItem.id}`} style={{color: "#277585"}}>
-                  {caseItem.user || "Anonymous"}
-                </Link> <br />
-                {caseItem.user_input}<br />
-              </li>
+                <li
+                  key={caseItem.id}
+                  className={`severity-${caseItem.severity}`}
+                  style={{ textAlign: "left" }}
+                >
+                  <strong>Severity:</strong> {caseItem.severity} |{" "}
+                  <strong>Student:</strong>{" "}
+                  <Link
+                    to={`/admin/students/${caseItem.user_id || caseItem.id}`}
+                    style={{ color: "#277585" }}
+                  >
+                    {caseItem.user || "Anonymous"}
+                  </Link>{" "}
+                  <br />
+                  {caseItem.user_input}
+                  <br />
+                </li>
               ))}
             </ul>
           ) : (
@@ -602,10 +614,12 @@ function AdminDashboard() {
 
       <div
         style={{
+          flexDirection: window.innerWidth < 768 ? "column" : "row",
           display: "flex",
           justifyContent: "space-between",
-          width: "80%",
-          margin: "0 auto",
+          width: window.innerWidth < 768 ? "100%" : "80%",
+
+          margin: "1rem auto",
           gap: "2rem",
         }}
       >
@@ -613,15 +627,19 @@ function AdminDashboard() {
           <h2>Student Summary</h2>
           <p>Total Entries: {uniqueUsers.length}</p>
           <p>Recent Activity: {recentActivity.length}</p>
-          <Link to="/admin/students" className="btn" style={{
-            display: "inline-block",
-            background: "#277585",
-            color: "white",
-            padding: "0.5rem 1rem",
-            borderRadius: "0.5rem",
-            textDecoration: "none",
-            marginTop: "1rem"
-          }}>
+          <Link
+            to="/admin/students"
+            className="btn"
+            style={{
+              display: "inline-block",
+              background: "#277585",
+              color: "white",
+              padding: "0.5rem 1rem",
+              borderRadius: "0.5rem",
+              textDecoration: "none",
+              marginTop: "1rem",
+            }}
+          >
             Manage Students
           </Link>
         </div>
@@ -632,7 +650,6 @@ function AdminDashboard() {
             <ul>
               {recentActivity.map((activity) => (
                 <li key={activity.id}>
-                  <strong>Entry ID:</strong> {activity.id} |{" "}
                   <strong>Input:</strong> {activity.user_input} |{" "}
                   <strong>Response:</strong> {activity.ai_output}
                 </li>

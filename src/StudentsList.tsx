@@ -22,7 +22,7 @@ function StudentsList() {
   const { user } = useAuth();
   const userName = getDisplayName(user);
   const { isAdmin, isLoading: isAdminCheckLoading } = useAdminCheck(user?.id);
-  
+
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   // Add search state
@@ -33,7 +33,7 @@ function StudentsList() {
     const fetchStudents = async () => {
       try {
         setIsLoading(true);
-        
+
         // Use supabaseAdmin to bypass RLS for admin operations
         fetchStudentsWithAdminClient();
       } catch (error) {
@@ -46,33 +46,40 @@ function StudentsList() {
     const fetchStudentsWithAdminClient = async () => {
       try {
         // Get all unique student IDs from anxious_summaries using admin client
-        const { data: studentEntries, error: entriesError } = await supabaseAdmin
-          .from("anxious_summaries")
-          .select("id, user, user_id, created_at, severity")
-          .order("created_at", { ascending: false });
-          
+        const { data: studentEntries, error: entriesError } =
+          await supabaseAdmin
+            .from("anxious_summaries")
+            .select("id, user, user_id, created_at, severity")
+            .order("created_at", { ascending: false });
+
         if (entriesError) {
           console.error("Admin client error:", entriesError);
           // Fall back to regular client with potential RLS restrictions
           fetchStudentsFromSummaries();
           return;
         }
-        
+
         // Process the data to create a list of unique students with their metrics
         const studentMap = new Map<string, Student>();
-        
-        studentEntries?.forEach(entry => {
+
+        studentEntries?.forEach((entry) => {
           // Prefer user_id (UUID) if available, otherwise fallback to id
           const userId = entry.user_id || entry.id;
           const severity = parseInt(entry.severity) || 0;
-          
+
           if (studentMap.has(userId)) {
             const student = studentMap.get(userId)!;
             student.entry_count += 1;
             // Track total severity for calculating average instead of highest
-            student.average_severity = (student.average_severity * (student.entry_count - 1) + severity) / student.entry_count;
+            student.average_severity =
+              (student.average_severity * (student.entry_count - 1) +
+                severity) /
+              student.entry_count;
             // Only update last_activity if the current entry is more recent
-            if (!student.last_activity || entry.created_at > student.last_activity) {
+            if (
+              !student.last_activity ||
+              entry.created_at > student.last_activity
+            ) {
               student.last_activity = entry.created_at;
             }
           } else {
@@ -81,11 +88,11 @@ function StudentsList() {
               user_name: entry.user,
               entry_count: 1,
               last_activity: entry.created_at,
-              average_severity: severity
+              average_severity: severity,
             });
           }
         });
-        
+
         setStudents(Array.from(studentMap.values()));
         setIsLoading(false);
       } catch (error) {
@@ -103,28 +110,34 @@ function StudentsList() {
           .from("anxious_summaries")
           .select("id, user, user_id, created_at, severity")
           .order("created_at", { ascending: false });
-          
+
         if (entriesError) {
           console.error("Regular client error:", entriesError);
           setIsLoading(false);
           return;
         }
-        
+
         // Process the data to create a list of unique students with their metrics
         const studentMap = new Map<string, Student>();
-        
-        studentEntries?.forEach(entry => {
+
+        studentEntries?.forEach((entry) => {
           // Prefer user_id (UUID) if available, otherwise fallback to id
           const userId = entry.user_id || entry.id;
           const severity = parseInt(entry.severity) || 0;
-          
+
           if (studentMap.has(userId)) {
             const student = studentMap.get(userId)!;
             student.entry_count += 1;
             // Track total severity for calculating average instead of highest
-            student.average_severity = (student.average_severity * (student.entry_count - 1) + severity) / student.entry_count;
+            student.average_severity =
+              (student.average_severity * (student.entry_count - 1) +
+                severity) /
+              student.entry_count;
             // Only update last_activity if the current entry is more recent
-            if (!student.last_activity || entry.created_at > student.last_activity) {
+            if (
+              !student.last_activity ||
+              entry.created_at > student.last_activity
+            ) {
               student.last_activity = entry.created_at;
             }
           } else {
@@ -133,11 +146,11 @@ function StudentsList() {
               user_name: entry.user,
               entry_count: 1,
               last_activity: entry.created_at,
-              average_severity: severity
+              average_severity: severity,
             });
           }
         });
-        
+
         setStudents(Array.from(studentMap.values()));
         setIsLoading(false);
       } catch (error) {
@@ -152,18 +165,18 @@ function StudentsList() {
   // Add useEffect to handle search filtering
   useEffect(() => {
     if (!students.length) return;
-    
+
     // Filter students based on search query
-    const results = students.filter(student => {
+    const results = students.filter((student) => {
       const query = searchQuery.toLowerCase();
       const nameMatch = student.user_name?.toLowerCase().includes(query);
       const emailMatch = student.email?.toLowerCase().includes(query);
       // Fix TypeError by ensuring student.id is converted to a string
       const idMatch = String(student.id).toLowerCase().includes(query);
-      
+
       return nameMatch || emailMatch || idMatch;
     });
-    
+
     setSearchResults(results);
   }, [searchQuery, students]);
 
@@ -199,10 +212,10 @@ function StudentsList() {
 
   return (
     <div className="students-list">
-      <div className="header" style={{ position: "relative" }}>
+      <div className="header" style={{ position: "relative", width: "auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
-            <Link to="/">
+            <Link to="/admin">
               <p
                 style={{
                   fontFamily: "montserrat alternates",
@@ -233,138 +246,209 @@ function StudentsList() {
       </div>
 
       <div style={{ padding: "2rem" }}>
-        <div style={{justifyContent: "center", marginBottom: "2rem" }}>
-          <h1 style={{ margin: 0, fontFamily: "Montserrat", fontWeight: "700", textAlign: "center" }}>Students Management</h1>
+        <div style={{ justifyContent: "center", marginBottom: "2rem" }}>
+          <h1
+            style={{
+              margin: 0,
+              fontFamily: "Montserrat",
+              fontWeight: "700",
+              textAlign: "center",
+            }}
+          >
+            Students Management
+          </h1>
           <Link to="/admin" style={{ marginRight: "1rem", color: "#277585" }}>
             <i className="fas fa-arrow-left"></i> Back to Dashboard
           </Link>
         </div>
 
         {/* Add search bar */}
-        <div style={{ 
-          marginBottom: "2rem", 
-          display: "flex",
-          justifyContent: "center"
-        }}>
-          <div style={{
-            position: "relative",
-            width: "100%",
-            maxWidth: "500px"
-          }}>
+        <div
+          style={{
+            marginBottom: "2rem",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+            <div
+            style={{
+              position: "relative",
+              maxWidth: "500px",
+              borderRadius: "1rem",
+              backgroundColor: "#e1f4ea",
+              color: "#3d3027",
+              fontWeight: 700,
+              width: "100%",
+              boxSizing: "border-box", // Critical for proper sizing
+              outline: "none",
+              border: "transparent 2px solid",
+              fontSize: "1.1rem",
+              fontFamily: "Montserrat",
+            }}
+            >
             <input
               type="text"
-              placeholder="Search students by name, email or ID..."
+              placeholder="Search students..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
-                width: "100%",
-                padding: "0.75rem 1rem 0.75rem 2.5rem",
-                borderRadius: "0.5rem",
-                border: "1px solid #ddd",
-                fontSize: "1rem",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
+              padding: "1.5rem 2.5rem",
+              borderRadius: "1rem",
+              backgroundColor: "#e1f4ea",
+              color: "#3d3027",
+              fontWeight: 700,
+              width: "100%",
+              boxSizing: "border-box", // Critical for proper sizing
+              outline: "none",
+              border: "transparent 2px solid",
+              fontSize: "1.1rem",
+              fontFamily: "Montserrat",
               }}
             />
-            <i 
-              className="fas fa-search" 
+            <i
+              className="fas fa-search"
               style={{
-                position: "absolute",
-                left: "0.75rem",
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: "#277585"
+              position: "absolute",
+              left: "1rem",
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "#277585",
               }}
             ></i>
             {searchQuery && (
-              <i 
-                className="fas fa-times" 
-                style={{
-                  position: "absolute",
-                  right: "0.75rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "#666",
-                  cursor: "pointer"
-                }}
-                onClick={() => setSearchQuery("")}
+              <i
+              className="fas fa-times"
+              style={{
+                position: "absolute",
+                right: "0.75rem",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#666",
+                cursor: "pointer",
+              }}
+              onClick={() => setSearchQuery("")}
               ></i>
             )}
-          </div>
+            </div>
         </div>
 
         {isLoading ? (
           <p>Loading students data...</p>
         ) : (
-          <div className="students-grid" style={{ 
-            display: "grid", 
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", 
-            gap: "1.5rem" 
-          }}>
+          <div
+            className="students-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+              gap: "1.5rem",
+            }}
+          >
             {/* Use searchResults instead of students */}
             {searchResults.length > 0 ? (
               searchResults.map((student) => (
-                <Link 
-                  to={`/admin/students/${student.id}`} 
+                <Link
+                  to={`/admin/students/${student.id}`}
                   key={student.id}
                   style={{ textDecoration: "none" }}
                 >
-                  <div className="student-card" style={{ 
-                    padding: "1.5rem", 
-                    backgroundColor: "#f5f5f5", 
-                    borderRadius: "0.5rem",
-                    border: "1px solid #ddd",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                    transition: "transform 0.2s, box-shadow 0.2s",
-                    cursor: "pointer",fontSize:"0.75rem",
-                    color: "#333"
-                  }}>
-                    <h3 style={{ margin: "0 0 1rem 0",fontSize:"1.5rem", color: "#277585" }}>
+                  <div
+                    className="student-card"
+                    style={{
+                      padding: "1.5rem",
+                      backgroundColor: "#f5f5f5",
+                      borderRadius: "0.5rem",
+                      border: "1px solid #ddd",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                      transition: "transform 0.2s, box-shadow 0.2s",
+                      cursor: "pointer",
+                      fontSize: "0.75rem",
+                      color: "#333",
+                    }}
+                  >
+                    <h3
+                      style={{
+                        margin: "0 0 1rem 0",
+                        fontSize: "1.5rem",
+                        color: "#277585",
+                      }}
+                    >
                       {student.user_name || student.email || student.id}
                     </h3>
                     {student.email && <p>Email: {student.email}</p>}
                     <p>Entries: {student.entry_count}</p>
-                    <p>Last Activity: {formatDate(student.last_activity || student.last_sign_in)}</p>
                     <p>
-                      Average Severity: 
-                      <span className={getSeverityClass(Math.round(student.average_severity))} style={{ 
-                        marginLeft: "0.5rem",
-                        padding: "0.25rem 0.5rem",
-                        borderRadius: "0.25rem",
-                        fontWeight: "bold",
-                        color: "white",
-                        fontSize:"0.75rem",
-                        backgroundColor: student.average_severity >= 4 ? "#d2565b" : 
-                                        student.average_severity >= 3 ? "#ffc46f" : 
-                                        student.average_severity > 0 ? "#a6d76e" : "#999"
-                      }}>
+                      Last Activity:{" "}
+                      {formatDate(
+                        student.last_activity || student.last_sign_in
+                      )}
+                    </p>
+                    <p>
+                      Average Severity:
+                      <span
+                        className={getSeverityClass(
+                          Math.round(student.average_severity)
+                        )}
+                        style={{
+                          marginLeft: "0.5rem",
+                          padding: "0.25rem 0.5rem",
+                          borderRadius: "0.25rem",
+                          fontWeight: "bold",
+                          color: "white",
+                          fontSize: "0.75rem",
+                          backgroundColor:
+                            student.average_severity >= 4
+                              ? "#d2565b"
+                              : student.average_severity >= 3
+                              ? "#ffc46f"
+                              : student.average_severity > 0
+                              ? "#a6d76e"
+                              : "#999",
+                        }}
+                      >
                         {student.average_severity.toFixed(1) || "N/A"}
                       </span>
                     </p>
                     {student.created_at && (
-                      <p className="account-created" style={{ fontSize: "0.85rem", color: "#666", marginTop: "0.5rem" }}>
+                      <p
+                        className="account-created"
+                        style={{
+                          fontSize: "0.85rem",
+                          color: "#666",
+                          marginTop: "0.5rem",
+                        }}
+                      >
                         Account created: {formatDate(student.created_at)}
                       </p>
                     )}
                   </div>
                 </Link>
               ))
+            ) : searchQuery ? (
+              <p
+                style={{
+                  gridColumn: "1 / -1",
+                  textAlign: "center",
+                  padding: "2rem",
+                }}
+              >
+                No students found matching "{searchQuery}". Try a different
+                search term.
+              </p>
             ) : (
-              searchQuery ? (
-                <p style={{ gridColumn: "1 / -1", textAlign: "center", padding: "2rem" }}>
-                  No students found matching "{searchQuery}". Try a different search term.
-                </p>
-              ) : (
-                <p>No students found.</p>
-              )
+              <p>No students found.</p>
             )}
           </div>
         )}
-        
+
         {/* Show total count of students/results */}
         {!isLoading && (
-          <div style={{ textAlign: "center", marginTop: "1.5rem", color: "#666" }}>
+          <div
+            style={{ textAlign: "center", marginTop: "1.5rem", color: "#666" }}
+          >
             {searchQuery ? (
-              <p>Found {searchResults.length} of {students.length} students</p>
+              <p>
+                Found {searchResults.length} of {students.length} students
+              </p>
             ) : (
               <p>Total: {students.length} students</p>
             )}

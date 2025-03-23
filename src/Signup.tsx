@@ -1,7 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
-import { RoleCode, assignRole } from './lib/roleUtils';
 import './styles/auth.css';
 
 // Add interface for auth response
@@ -12,6 +11,9 @@ interface AuthResponse {
     // Add other user properties as needed
   };
   session?: import('@supabase/supabase-js').Session | null;
+  error?: {
+    message: string;
+  };
 }
 
 
@@ -26,19 +28,11 @@ const Signup = () => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [isEmailSent, setIsEmailSent] = useState(false);
-  
-  // Add role state
-  const [role] = useState<RoleCode>('ST'); // Default to student
-  const [classCode, setClassCode] = useState('');
-  
+
+
   // Get auth context and navigation
   const { register, error: authError, loading } = useAuth();
-  
-  // Validate class code pattern (e.g., "12F", "8B")
-  const isValidClassCode = (code: string): boolean => {
-    return /^[1-9][0-9]?[A-Z]$/.test(code);
-  };
-  
+
   // Handle signup form submission
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -61,12 +55,7 @@ const Signup = () => {
       setFormError("You must agree to the Terms and Conditions");
       return;
     }
-    
-    // Validate class code for students
-    if (role === 'ST' && !isValidClassCode(classCode)) {
-      setFormError('Please enter a valid class code (e.g., 12F, 8B)');
-      return;
-    }
+   
     
     try {
       // Log the data being sent
@@ -74,26 +63,43 @@ const Signup = () => {
         email, 
         password, 
         firstName, 
-        lastName,
-        role,
-        classCode
+        lastName
       });
+
+      // Add debugging to check if we reach this point
+      console.log('About to call register function...');
       
-      // Register the user with proper type annotation
-      const userData = await register(email, password) as AuthResponse;
-      
-      // If registration was successful, assign the role
-      if (userData?.user) {
-        if (role === 'ST') {
-          await assignRole(userData.user.id, role, classCode);
-        } else {
-          await assignRole(userData.user.id, role);
+      // Pass firstName and lastName as user metadata
+      // This assumes your useAuth hook accepts this parameter structure
+      const result = (await register(
+        email, 
+        password, 
+        { 
+          metadata: { 
+            first_name: firstName,
+            last_name: lastName
+          }
         }
-      }
+      )) as AuthResponse;
       
-      // Check if email confirmation is required
+      console.log('Register function returned:', result);
+
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+
+      // Only if registration is successful, show confirmation
       setIsEmailSent(true);
     } catch (error) {
+      console.error('Registration failed with error:', error);
+      // Log the full error object for more details
+      if (error instanceof Error) {
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      } else {
+        console.error('Unknown error type:', typeof error);
+      }
       setFormError((error as Error).message);
     }
   };
@@ -202,25 +208,7 @@ const Signup = () => {
           </div>
           
           
-          {/* Conditional class code field for students */}
-          {role === 'ST' && (
-            <div className="form-group">
-              <label htmlFor="classCode">Your Class</label>
-              <input
-                type="text"
-                id="classCode"
-                value={classCode}
-                onChange={(e) => setClassCode(e.target.value.toUpperCase())}
-                required
-                disabled={loading}
-                placeholder="e.g., 12F, 8B"
-                pattern="^[1-9][0-9]?[A-Z]$"
-                title="Please enter a valid class code (e.g., 12F, 8B)"
-                className="auth-input"
-              />
-              <small className="form-help">Format: Grade number followed by class letter (e.g., 12F, 8B)</small>
-            </div>
-          )}
+          
           
           <div className="form-group checkbox-group">
             <input

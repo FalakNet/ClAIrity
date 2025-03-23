@@ -1,13 +1,10 @@
 import { useContext, useState } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
+import { createClient } from '@supabase/supabase-js';
 
-interface AuthResponse {
-  user: {
-    id: string;
-    email: string;
-  };
-  session: unknown; // Replace `unknown` with the appropriate type if available
-}
+// const supabase = createClient('your-supabase-url', 'your-supabase-anon-key');
+const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
+
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -19,30 +16,26 @@ export const useAuth = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const register = async (
-    email: string,
-    password: string,
-  ): Promise<AuthResponse> => {
+  const register = async (email: string, password: string, options?: { metadata?: Record<string, unknown> }) => {
     setLoading(true);
     setError(null);
-
+    
     try {
-      // Replace this with the actual registration logic
-      const response: AuthResponse = {
-        user: {
-          id: 'example-id',
-          email,
-        },
-        session: { password }, // Example usage of the password
-      };
-      return response;
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || 'An error occurred');
-      } else {
-        setError('An unknown error occurred');
-      }
-      throw err; // Re-throw the error after handling it
+      // This is the correct Supabase signUp method with metadata
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: options?.metadata || {}
+        }
+      });
+      
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error in register function:', error);
+      setError((error as Error).message);
+      return { error };
     } finally {
       setLoading(false);
     }

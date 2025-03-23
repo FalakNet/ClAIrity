@@ -226,34 +226,3 @@ form {
   justify-content: initial;
   height: auto;
 }
-
-/* Role selection styling */
-.role-selection {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.role-option {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-}
-
-.role-option input[type="radio"] {
-  margin: 0;
-  cursor: pointer;
-}
-
-.role-option span {
-  font-size: 0.95rem;
-}
-
-.form-help {
-  display: block;
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
-  color: #666;
-}
