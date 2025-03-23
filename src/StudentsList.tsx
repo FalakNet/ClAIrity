@@ -4,6 +4,8 @@ import { supabase, supabaseAdmin } from "./lib/supabase";
 import { useAuth } from "./hooks/useAuth";
 import { getDisplayName } from "./lib/userUtils";
 import "./App.css";
+import { useAdminCheck } from "./hooks/useAdminCheck";
+import Forbidden from "./components/Forbidden";
 
 interface Student {
   id: string;
@@ -19,6 +21,8 @@ interface Student {
 function StudentsList() {
   const { user } = useAuth();
   const userName = getDisplayName(user);
+  const { isAdmin, isLoading: isAdminCheckLoading } = useAdminCheck(user?.id);
+  
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   // Add search state
@@ -178,6 +182,20 @@ function StudentsList() {
     const date = new Date(dateString);
     return date.toLocaleDateString() + " " + date.toLocaleTimeString();
   };
+
+  // If admin check is loading, show loading state
+  if (isAdminCheckLoading) {
+    return (
+      <div style={{ textAlign: "center", padding: "3rem" }}>
+        <p>Checking permissions...</p>
+      </div>
+    );
+  }
+
+  // If user is not admin, show forbidden page
+  if (!isAdmin) {
+    return <Forbidden />;
+  }
 
   return (
     <div className="students-list">

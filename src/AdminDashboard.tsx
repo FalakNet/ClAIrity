@@ -6,6 +6,8 @@ import { getDisplayName } from "./lib/userUtils";
 // Update the import to use the correct path
 import { PieChart } from "@mui/x-charts";
 import "./App.css";
+import { useAdminCheck } from "./hooks/useAdminCheck";
+import Forbidden from "./components/Forbidden";
 
 function AdminDashboard() {
   // Update interface to use id instead of user_id
@@ -23,6 +25,7 @@ function AdminDashboard() {
 
   const { user } = useAuth();
   const userName = getDisplayName(user);
+  const { isAdmin, isLoading: isAdminCheckLoading } = useAdminCheck(user?.id);
 
   const [uniqueUsers, setUniqueUsers] = useState<UserSummary[]>([]);
   interface FlaggedCase {
@@ -341,6 +344,20 @@ function AdminDashboard() {
       },
     ];
   };
+
+  // If admin check is loading, show loading state
+  if (isAdminCheckLoading) {
+    return (
+      <div style={{ textAlign: "center", padding: "3rem" }}>
+        <p>Checking permissions...</p>
+      </div>
+    );
+  }
+
+  // If user is not admin, show forbidden page
+  if (!isAdmin) {
+    return <Forbidden />;
+  }
 
   return (
     <div className="admin-dashboard">
