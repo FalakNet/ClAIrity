@@ -1,10 +1,13 @@
 import { useState, FormEvent } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import "./App.css";
 import "./styles/auth.css";
 
 const Login = () => {
+  const location = useLocation();
+  const message = location.state?.message;
+
   // Form state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,8 +33,21 @@ const Login = () => {
   return (
     <div className="auth-container">
       <div className="auth-form-card">
-        <h1 className="auth-title">clarity</h1>{" "}
-        <p className="auth-subtitle">Welcome Back!</p>
+        <h1 className="auth-title">clarity</h1>
+        <p className="auth-subtitle">Log in to your account</p>
+        
+        {message && (
+          <div className="auth-success-message" style={{ 
+            backgroundColor: '#e6f7f0', 
+            color: '#2a7d5c', 
+            padding: '10px', 
+            borderRadius: '4px', 
+            marginBottom: '15px' 
+          }}>
+            {message}
+          </div>
+        )}
+
         {(formError || authError) && (
           <div className="auth-error">{formError || authError}</div>
         )}

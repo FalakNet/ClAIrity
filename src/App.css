@@ -654,3 +654,99 @@ h2 {
   margin-bottom: 1rem;
 }
 
+.admin-dashboard {
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+}
+
+.dashboard-section {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: #277585 2px solid;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+.dashboard-section:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-section h2 {
+  margin-bottom: 1rem;
+}
+
+.dashboard-section ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.dashboard-section ul li {
+  margin-bottom: 1rem;
+  padding: 5px;
+  list-style-type: none;
+  word-break: break-word;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.happiness-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #277585;
+  margin-top: 10px;
+}
+
+.happiness-high {
+  background: 10px solid #4dff4d;
+}
+
+.happiness-good {
+  background: 10px solid #a7ff4d;
+}
+
+.happiness-moderate {
+  background: 10px solid #ffff4d;
+}
+
+.happiness-low {
+  background: 10px solid #ffa74d;
+}
+
+.happiness-critical {
+  background: 10px solid #ff4d4d;
+}
+
+.happiness-explanation {
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+/* Add styling for different severity levels */
+.severity-5 {
+  background-color: rgba(255, 77, 77, 0.2);
+  border-left: 5px solid #ff4d4d;
+  padding: 1rem !important;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.severity-4 {
+  background-color: rgba(255, 167, 77, 0.2);
+  border-left: 5px solid #ffa74d;
+  padding: 1rem !important;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+/* Styles for the pie chart */
+.severity-pie-chart {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+

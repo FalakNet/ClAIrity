@@ -5,9 +5,14 @@ import { useAuth } from "./hooks/useAuth";
 import { getDisplayName } from "./lib/userUtils";
 import "./App.css";
 import { Link } from "react-router-dom";
+import { createClient } from "@supabase/supabase-js";
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 declare global {
   interface Window {
@@ -56,7 +61,10 @@ function Counselor() {
   }, [showClearPopup]);
 
   const handleSend = async () => {
-    if (input.trim() === "") return;
+    if (input.trim() === "" || isTyping) {
+      // Prevent sending if input is empty or bot is still typing
+      return;
+    }
 
     const userMessage = { id: generateId(), sender: "user", text: input };
     const updatedMessages = [...messages, userMessage];
@@ -71,21 +79,23 @@ function Counselor() {
     const finalMessages = [...updatedMessages, aiMessage];
     setMessages(finalMessages);
 
-    // Check for suicide risk
-    const riskResponse = await checkSuicideRisk(updatedMessages);
-    if (riskResponse.toLowerCase().includes("yes")) {
-      alert(
-        "Authorities Notified..."
-      );
+    // Save the updated chat to Supabase
+    try {
+      const { error } = await supabase.from("active_chats").upsert([
+        {
+          user_id: user?.id || "guest",
+          messages: JSON.stringify(finalMessages), // Save the entire conversation
+          updated_at: new Date().toISOString(),
+        },
+      ]);
 
-      // Use hardcoded coordinates
-      const latitude = 25.132417;
-      const longitude = 55.422028;
-      const userPhone = user?.phone || user?.user_metadata?.phone;
-      const policeMessage = await createPoliceMessage(updatedMessages, latitude, longitude, userName, userPhone);
-
-      console.log(policeMessage)
-      
+      if (error) {
+        console.error("Error saving chat to Supabase:", error);
+      } else {
+        console.log("Chat saved successfully.");
+      }
+    } catch (error) {
+      console.error("Error saving chat:", error);
     }
 
     setIsTyping(false); // Hide typing indicator
@@ -99,52 +109,13 @@ function Counselor() {
         .map((msg) => `${msg.sender}: ${msg.text}`)
         .join("\n");
       const result = await model.generateContent(
-        "You are Clairity, an AI trained to provide compassionate, evidence-based guidance on mental well-being. Your responses should be supportive, non-judgmental, and focused on mental health topics, such as stress, anxiety, self-care, relationships, and emotional resilience. Avoid discussing unrelated topics and do not provide medical diagnoses or treatment. btw u are in the UAE. Instead, encourage self-reflection and positive coping strategies. Give advice if they want. DO NOT OUTPUT MARKDOWN AND GIVE SHORT RESPONSES WHERE POSSIBLE. Here is the conversation history: \n" +
+        "You are Clairity, an AI trained to provide compassionate, evidence-based guidance on mental well-being. Your responses should be supportive, non-judgmental, and focused on mental health topics, such as stress, anxiety, self-care, relationships, and emotional resilience. do not provide medical diagnoses or treatment. You are based in the UAE. Instead, encourage self-reflection and positive coping strategies. Give advice if they want. DO NOT OUTPUT MARKDOWN or any * AND GIVE SHORT RESPONSES WHERE POSSIBLE. Also its okay to be unprofessional, whatever it takes to make the user happy.   Here is the conversation history: \n" +
           conversationHistory
       );
       return result.response.text();
     } catch (error) {
       console.error("Error fetching response from Google Gemini:", error);
       return "Sorry, I am unable to process your request at the moment.";
-    }
-  };
-
-  const checkSuicideRisk = async (
-    conversation: { id: string; sender: string; text: string }[]
-  ) => {
-    try {
-      const conversationHistory = conversation
-        .map((msg) => `${msg.sender}: ${msg.text}`)
-        .join("\n");
-      const result = await model.generateContent(
-        "You are Clairity, an AI trained to assess the risk of suicide based on conversation history. Respond with 'yes' if you think the person is at risk of suicide, otherwise respond with 'no'. Here is the conversation history: \n" +
-          conversationHistory
-      );
-      return result.response.text();
-    } catch (error) {
-      console.error("Error checking suicide risk with Google Gemini:", error);
-      return "no";
-    }
-  };
-
-  const createPoliceMessage = async (
-    conversation: { id: string; sender: string; text: string }[],
-    latitude: number,
-    longitude: number,
-    userName: string | undefined,
-    userPhone: string | undefined
-  ) => {
-    try {
-      const conversationHistory = conversation
-        .map((msg) => `${msg.sender}: ${msg.text}`)
-        .join("\n");
-      const result = await model.generateContent(
-        `You are Clairity, an AI trained to create emergency messages for the police. Based on the conversation history, the user's current location, and the user's name and phone number, create a message to be sent to the police. Here is the conversation history: \n${conversationHistory}\nUser's location: Latitude ${latitude}, Longitude ${longitude}\nUser's name: ${userName}\nUser's phone number: ${userPhone}. This is an emergency, do not redact the phone number. Please alert the authorities about the situation and the location.`
-      );
-      return result.response.text();
-    } catch (error) {
-      console.error("Error creating police message with Google Gemini:", error);
-      return "Unable to create a message for the police at the moment.";
     }
   };
 
@@ -194,18 +165,174 @@ function Counselor() {
     }
   }, [messages]);
 
-  // Initialize with welcome message only if no messages exist
+  // Initialize with welcome message only if no messages exist and no active chat is loaded
   useEffect(() => {
-    if (!hasInitializedRef.current && messages.length === 0 && user) {
-      const welcomeMessage = {
-        id: generateId(),
-        sender: "ai",
-        text: `Hey ${userName}, How do you feel today?`,
-      };
-      setMessages([welcomeMessage]);
-      hasInitializedRef.current = true;
+    const initializeChat = async () => {
+      if (user && !hasInitializedRef.current) {
+        await loadActiveChat(); // Load chat from the database first
+        if (messages.length === 0 && !hasInitializedRef.current) {
+          const welcomeMessage = {
+            id: generateId(),
+            sender: "ai",
+            text: `Hey ${userName}, How do you feel today?`,
+          };
+          setMessages([welcomeMessage]);
+        }
+        hasInitializedRef.current = true; // Ensure initialization happens only once
+      }
+    };
+
+    initializeChat();
+  });
+
+  const clearChatAndShowWelcome = async () => {
+    if (!messages.some((msg) => msg.sender === "user")) { 
+      return;
     }
-  }, [user, userName, messages.length]);
+
+    // Immediately clear the chat and start a new conversation
+    const welcomeMessage = {
+      id: generateId(),
+      sender: "ai",
+      text: `Hey ${userName}, How do you feel today?`,
+    };
+    const updatedMessages = [welcomeMessage];
+    setMessages(updatedMessages);
+    setShowClearPopup(false);
+
+    // Save the welcome message to the database
+    try {
+      const { error } = await supabase.from("active_chats").upsert([
+        {
+          user_id: user?.id || "guest",
+          messages: JSON.stringify(updatedMessages), // Save the welcome message
+          updated_at: new Date().toISOString(),
+        },
+      ]);
+
+      if (error) {
+        console.error("Error saving welcome message to Supabase:", error);
+      } else {
+        console.log("Welcome message saved successfully.");
+      }
+    } catch (error) {
+      console.error("Error saving welcome message:", error);
+    }
+
+    // Skip creating a summary if the user has sent fewer than 4 messages
+    const userMessagesCount = messages.filter((msg) => msg.sender === "user").length;
+    if (userMessagesCount < 4) {
+      console.log("Not enough user messages to create a summary.");
+      return;
+    }
+
+    // Process Gemini summary in the background
+    try {
+      const conversationHistory = messages
+        .map((msg) => `${msg.sender}: ${msg.text}`)
+        .join("\n");
+      const result = await model.generateContent(
+        `You are Clairity, an AI trained to summarize conversations. Create a concise summary of the following conversation history:\n${conversationHistory}`
+      );
+      const summary = result.response.text();
+
+      // Upload the summary to Supabase
+      const { error: summaryError } = await supabase
+        .from("chat_summaries")
+        .insert([
+          {
+            user_id: user?.id || "guest",
+            summary,
+            created_at: new Date().toISOString(),
+          },
+        ]);
+
+      if (summaryError) {
+        console.error("Error uploading summary to Supabase:", summaryError);
+      } else {
+        console.log("Chat summary uploaded successfully.");
+      }
+    } catch (error) {
+      console.error("Error processing chat summary:", error);
+    }
+  };
+
+  // Load active chat from Supabase
+  const loadActiveChat = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("active_chats")
+        .select("messages")
+        .eq("user_id", user?.id || "guest")
+        .single();
+
+      if (error) {
+        console.error("Error loading active chat from Supabase:", error);
+      } else if (data && data.messages) {
+        setMessages(JSON.parse(data.messages)); // Load messages from Supabase
+        hasInitializedRef.current = true; // Prevent further reloading
+      }
+    } catch (error) {
+      console.error("Error loading active chat:", error);
+    }
+  };
+
+  // Ensure chat is loaded only once per session
+  useEffect(() => {
+    if (user && !hasInitializedRef.current) {
+      loadActiveChat();
+    }
+  });
+
+  useEffect(() => {
+    if (user) {
+      const channel = supabase
+        .channel(`active_chats:user_id=${user.id || "guest"}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*", // Listen to both INSERT and UPDATE events
+            schema: "public",
+            table: "active_chats",
+            filter: `user_id=eq.${user.id || "guest"}`,
+          },
+          (payload) => {
+            if (payload.new && (payload.new as { messages: string }).messages) {
+              setMessages(JSON.parse((payload.new as { messages: string }).messages)); // Update messages in real-time
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel); // Cleanup subscription on unmount
+      };
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      const intervalId = setInterval(async () => {
+        try {
+          const { data, error } = await supabase
+            .from("active_chats")
+            .select("messages")
+            .eq("user_id", user?.id || "guest")
+            .single();
+
+          if (error) {
+            console.error("Error polling active chat from Supabase:", error);
+          } else if (data && data.messages) {
+            setMessages(JSON.parse(data.messages)); // Update messages with the latest data
+          }
+        } catch (error) {
+          console.error("Error during polling:", error);
+        }
+      }, 1000); // Poll every second
+
+      return () => clearInterval(intervalId); // Cleanup interval on unmount
+    }
+  }, [user]);
 
   return (
     <div>
@@ -304,13 +431,14 @@ function Counselor() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Tell me whats bothering you..."
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
+            if (e.key === "Enter" && !isTyping) {
+              // Prevent sending if bot is still typing
               handleSend();
             }
           }}
         />
 
-        <button onClick={handleSend}>
+        <button onClick={handleSend} disabled={isTyping}> {/* Disable button while bot is typing */}
           {" "}
           <i className="far fa-paper-plane-top"></i>{" "}
         </button>
@@ -368,10 +496,7 @@ function Counselor() {
                 }}
               >
                 <button
-                  onClick={() => {
-                    setMessages([]);
-                    setShowClearPopup(false);
-                  }}
+                  onClick={clearChatAndShowWelcome} // Use the new function
                   style={{
                     color: "#000",
                     border: "1px solid #ccc",

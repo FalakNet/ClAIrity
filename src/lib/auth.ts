@@ -16,10 +16,10 @@ export const signUp = async (
     password,
     options: {
       data: {
-        first_name: options?.firstName,
-        last_name: options?.lastName
+        first_name: options?.firstName || null,
+        last_name: options?.lastName || null
       },
-      emailRedirectTo: options?.redirectTo
+      emailRedirectTo: options?.redirectTo || undefined
     }
   });
   

@@ -7,6 +7,10 @@ import AnxiousEase from './AnxiousEase';
 import Login from './Login';
 import Signup from './Signup';
 import MindState from './MindState';
+import AdminDashboard from './AdminDashboard';
+import AuthCallback from './components/AuthCallback';
+import StudentsList from './StudentsList';
+import StudentDetail from './StudentDetail';
 
 // Animation wrapper component
 function AnimatedPage({ children }: { children: React.ReactNode }) {
@@ -45,6 +49,12 @@ function App() {
         <Route path="/mindstate" element={<AnimatedPage><MindState /></AnimatedPage>} />
         <Route path="/login" element={<AnimatedPage><Login /></AnimatedPage>} />
         <Route path="/signup" element={<AnimatedPage><Signup /></AnimatedPage>} />
+        <Route path="/admin" element={<AnimatedPage><AdminDashboard /></AnimatedPage>} />
+        {/* Add the auth callback route */}
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        {/* New routes for student management */}
+        <Route path="/admin/students" element={<StudentsList />} />
+        <Route path="/admin/students/:studentId" element={<StudentDetail />} />
       </Routes>
     </Router>
   );

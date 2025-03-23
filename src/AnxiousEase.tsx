@@ -1,19 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Adjust the import path as necessary
 import { useAuth } from "./hooks/useAuth";
 import { getDisplayName } from "./lib/userUtils";
 import "./App.css";
+import { supabase } from "./lib/supabase"; // Ensure you have a Supabase client setup
 
 // import VITE_GEMINI_API_KEY from .env (this is vite react app)
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-8b" });
 
 function AnxiousEase() {
   // Get user info from Supabase auth
   const { user } = useAuth();
   const userName = getDisplayName(user);
+  const [studentName, setStudentName] = useState("");
+
+  useEffect(() => {
+    // Fetch student name when component mounts and user is available
+    if (user?.id) {
+      fetchStudentName(user.id);
+    }
+  }, [user]);
+
+  const fetchStudentName = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("students")
+        .select("full_name")
+        .eq("user_id", userId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching student name:", error);
+        return;
+      }
+
+      if (data) {
+        setStudentName(data.full_name);
+      }
+    } catch (err) {
+      console.error("Unexpected error fetching student name:", err);
+    }
+  };
 
   const [anxietyReason, setAnxietyReason] = useState("");
   const [response, setResponse] = useState("");
@@ -23,11 +53,67 @@ function AnxiousEase() {
   const [encouragement, setEncouragement] = useState("");
   const [ideas, setIdeas] = useState<string[]>([]);
 
+  const saveToSupabase = async (input: string, output: string, severity: string, displayName: string) => {
+    try {
+      // Make sure we have a valid user ID
+      if (!user?.id) {
+        console.error("No user ID available - user may not be authenticated");
+      }
+      
+      // Create entry data without specifying the id (let Supabase generate it)
+      const entryData = {
+        user_input: input,
+        ai_output: output,
+        severity: severity,
+        user: displayName, // Store display name in 'user' field
+        user_id: user?.id, // Ensure user UUID is stored in user_id field
+        student_name: studentName || displayName, // Use the fetched student name, fallback to displayName
+        created_at: new Date().toISOString()
+      };
+      
+      // Insert with better error handling for duplicate key errors
+      const { error } = await supabase
+        .from("anxious_summaries")
+        .insert([entryData]);
+      
+      if (error) {
+        if (error.code === '23505') {
+          console.error("Duplicate key error - trying with a different approach");
+          
+          // Try again without specifying the created_at (let DB set it)
+          const { error: retryError } = await supabase
+            .from("anxious_summaries")
+            .insert([{
+              ...entryData,
+              created_at: undefined // Let the database set this
+            }]);
+            
+          if (retryError) {
+            console.error("Error on retry:", retryError);
+            return;
+          } else {
+            console.log("Successfully saved entry on second attempt with user_id:", user?.id);
+          }
+        } else {
+          console.error("Error saving to Supabase:", error);
+        }
+      } else {
+        console.log("Successfully saved entry with user_id:", user?.id);
+      }
+    } catch (err) {
+      console.error("Unexpected error saving to Supabase:", err);
+    }
+  };
+
   const handleSubmit = async () => {
     if (anxietyReason.trim() === "") return;
 
     const response = await fetchGoogleGeminiResponse(anxietyReason);
     setResponse(response);
+
+    // Save input, response, and severity score to Supabase
+    // Pass userName as the display name parameter
+    await saveToSupabase(anxietyReason, response, severityScore, userName);
   };
 
   const fetchGoogleGeminiResponse = async (input: string) => {
@@ -98,6 +184,8 @@ function AnxiousEase() {
       return "Sorry, I am unable to process your request at the moment.";
     }
   };
+
+  // Removed unused submitConversation function
 
   return (
     <div className="anxious-ease-container">

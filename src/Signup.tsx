@@ -1,7 +1,20 @@
 import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
+import { RoleCode, assignRole } from './lib/roleUtils';
 import './styles/auth.css';
+
+// Add interface for auth response
+interface AuthResponse {
+  user: {
+    id: string;
+    email: string;
+    // Add other user properties as needed
+  };
+  session?: import('@supabase/supabase-js').Session | null;
+}
+
+
 
 const Signup = () => {
   // Form state
@@ -14,8 +27,17 @@ const Signup = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [isEmailSent, setIsEmailSent] = useState(false);
   
+  // Add role state
+  const [role] = useState<RoleCode>('ST'); // Default to student
+  const [classCode, setClassCode] = useState('');
+  
   // Get auth context and navigation
   const { register, error: authError, loading } = useAuth();
+  
+  // Validate class code pattern (e.g., "12F", "8B")
+  const isValidClassCode = (code: string): boolean => {
+    return /^[1-9][0-9]?[A-Z]$/.test(code);
+  };
   
   // Handle signup form submission
   const handleSubmit = async (e: FormEvent) => {
@@ -40,20 +62,34 @@ const Signup = () => {
       return;
     }
     
+    // Validate class code for students
+    if (role === 'ST' && !isValidClassCode(classCode)) {
+      setFormError('Please enter a valid class code (e.g., 12F, 8B)');
+      return;
+    }
+    
     try {
       // Log the data being sent
       console.log('Sending registration data:', { 
         email, 
         password, 
         firstName, 
-        lastName 
+        lastName,
+        role,
+        classCode
       });
       
-      await register(email, password, { 
-        firstName, 
-        lastName,
-        redirectTo: `${window.location.origin}/auth/callback`
-      });
+      // Register the user with proper type annotation
+      const userData = await register(email, password) as AuthResponse;
+      
+      // If registration was successful, assign the role
+      if (userData?.user) {
+        if (role === 'ST') {
+          await assignRole(userData.user.id, role, classCode);
+        } else {
+          await assignRole(userData.user.id, role);
+        }
+      }
       
       // Check if email confirmation is required
       setIsEmailSent(true);
@@ -67,7 +103,8 @@ const Signup = () => {
     return (
       <div className="auth-container">
         <div className="auth-form-card">
-          <h1 className="auth-title">Check Your Email</h1>
+          <h1 className="auth-title">clarity</h1>
+          <h2>Check you Email</h2>
           <p className="auth-subtitle">
             We've sent a confirmation email to <strong>{email}</strong>.<br/>
             Please check your inbox and follow the instructions to complete your registration.
@@ -163,6 +200,27 @@ const Signup = () => {
               className="auth-input"
             />
           </div>
+          
+          
+          {/* Conditional class code field for students */}
+          {role === 'ST' && (
+            <div className="form-group">
+              <label htmlFor="classCode">Your Class</label>
+              <input
+                type="text"
+                id="classCode"
+                value={classCode}
+                onChange={(e) => setClassCode(e.target.value.toUpperCase())}
+                required
+                disabled={loading}
+                placeholder="e.g., 12F, 8B"
+                pattern="^[1-9][0-9]?[A-Z]$"
+                title="Please enter a valid class code (e.g., 12F, 8B)"
+                className="auth-input"
+              />
+              <small className="form-help">Format: Grade number followed by class letter (e.g., 12F, 8B)</small>
+            </div>
+          )}
           
           <div className="form-group checkbox-group">
             <input
