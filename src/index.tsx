@@ -4,9 +4,33 @@ import { useAuth } from "./hooks/useAuth";
 import { getDisplayName } from "./lib/userUtils";
 import "./App.css";
 
+// Function to get the user's class from metadata
+interface User {
+  user_metadata?: {
+    class?: string;
+  };
+}
+
+const getUserClass = (user: User | null): string => {
+  if (!user) return '';
+
+  // Check if class info exists in user.user_metadata
+  const userClass = user.user_metadata?.class || '';
+  
+  // Extract number and letter from the class string
+  const match = userClass.match(/(\d+)\s*([a-zA-Z])/);
+  if (match) {
+    const [, number, letter] = match;
+    return `${number} ${letter}`;
+  }
+
+  return '';
+};
+
 function Index() {
   const { user } = useAuth();
   const userName = getDisplayName(user);
+  const userClass = getUserClass(user);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isFading, setIsFading] = useState(false);
   useEffect(() => {
@@ -51,9 +75,16 @@ function Index() {
             }}
             onClick={handleLogout}
           >
-            <span className="name" style={{ fontSize: "1.5rem" }}>
-              {userName}
-            </span>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+              <span className="name" style={{ fontSize: "1.5rem" }}>
+                {userName}
+              </span>
+              {userClass && (
+                <span className="class" style={{ fontSize: "1rem", opacity: 1 }}>
+                  Class {userClass}
+                </span>
+              )}
+            </div>
             <i className="fas fa-circle" style={{ fontSize: "1.5rem" }}></i>
           </div>
         ) : (

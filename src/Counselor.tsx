@@ -20,10 +20,34 @@ declare global {
   }
 }
 
+// Function to get the user's class from metadata
+interface User {
+  user_metadata?: {
+    class?: string;
+  };
+}
+
+const getUserClass = (user: User | null): string => {
+  if (!user) return '';
+
+  // Check if class info exists in user.user_metadata
+  const userClass = user.user_metadata?.class || '';
+  
+  // Extract number and letter from the class string
+  const match = userClass.match(/(\d+)\s*([a-zA-Z])/);
+  if (match) {
+    const [, number, letter] = match;
+    return `${number} ${letter}`;
+  }
+
+  return '';
+};
+
 function Counselor() {
   // Get user info from Supabase auth
   const { user } = useAuth();
   const userName = getDisplayName(user);
+  const userClass = getUserClass(user);
   const storageKey = `clairity-chat-${user?.id || "guest"}`;
 
   // Load messages from localStorage or initialize with empty array
@@ -357,16 +381,27 @@ function Counselor() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "0.5rem",
+              gap: "1rem",
+              
               color: "#3d3027",
             }}
             onClick={() => setShowClearPopup(true)}
           >
-            <span className="name" style={{ cursor: "pointer" }}>
-              {userName}
-            </span>
+           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+              <span className="name" style={{ fontSize: "1.5rem" }}>
+                {userName}
+              </span>
+              {userClass && (
+                <span className="class" style={{ fontSize: "1rem", opacity: 1 }}>
+                  Class {userClass}
+                </span>
+              )}
+            </div>
+            
             <i className="fas fa-circle" style={{ fontSize: "1.5rem" }}></i>
+            
           </div>
+          
         </div>
 
         <p className="securityMsg">

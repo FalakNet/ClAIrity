@@ -14,6 +14,7 @@ function AdminDashboard() {
   interface UserSummary {
     id: string;
     count: number;
+    created_at: string; // Add created_at property
   }
 
   // Add interface for historical happiness data
@@ -21,6 +22,18 @@ function AdminDashboard() {
     month: number;
     year: number;
     index_value: number;
+  }
+
+  // Add interface for MindState data
+  interface MindStateEntry {
+    id: string;
+    user_id: string;
+    user_name: string;
+    user_class?: string;
+    feeling: string;
+    feeling_descriptions: string[];
+    impact_factors: string[];
+    created_at: string;
   }
 
   const { user } = useAuth();
@@ -61,6 +74,17 @@ function AdminDashboard() {
   const [historicalHappiness, setHistoricalHappiness] = useState<
     MonthlyHappiness[]
   >([]);
+
+  // Map MindState feelings to numerical happiness values based on 7-point scale
+  const feelingToHappinessMap: { [key: string]: number } = {
+    "Very Pleasant": 100,      // 7 on the 7-point scale
+    "Pleasant": 83.3,          // 6 on the 7-point scale
+    "Slightly Pleasant": 66.7, // 5 on the 7-point scale
+    "Neutral": 50,             // 4 on the 7-point scale
+    "Slightly Unpleasant": 33.3, // 3 on the 7-point scale
+    "Unpleasant": 16.7,        // 2 on the 7-point scale
+    "Very Unpleasant": 0,      // 1 on the 7-point scale
+  };
 
   // Function to check if today is the last day of the month
   const isLastDayOfMonth = () => {
@@ -150,17 +174,28 @@ function AdminDashboard() {
         const { data: uniqueUsersData, error: uniqueUsersError } =
           await supabase
             .from("anxious_summaries")
-            .select("id")
+            .select("id, created_at")
             .order("id")
             .then((result) => {
               if (result.error) throw result.error;
 
-              // Process data to get unique entry IDs
-              const uniqueIds = Array.from(
-                new Set(result.data.map((item) => item.id))
-              );
+              // Process data to get unique entry IDs and their creation dates
+              const uniqueEntries = new Map();
+              
+              result.data.forEach(item => {
+                // If this ID isn't in our map yet, or if this entry is newer than what we have
+                if (!uniqueEntries.has(item.id) || 
+                    new Date(item.created_at) > new Date(uniqueEntries.get(item.id).created_at)) {
+                  uniqueEntries.set(item.id, { 
+                    id: item.id, 
+                    count: 0, 
+                    created_at: item.created_at 
+                  });
+                }
+              });
+              
               return {
-                data: uniqueIds.map((id) => ({ id: id, count: 0 })),
+                data: Array.from(uniqueEntries.values()),
                 error: null,
               };
             });
@@ -219,67 +254,86 @@ function AdminDashboard() {
         if (severityCountError) throw severityCountError;
         setSeverityCounts(severityCountData);
 
-        // Calculate happiness index with improved algorithm
-        const { data: severityData, error: severityError } = await supabase
-          .from("anxious_summaries")
-          .select("severity, created_at")
-          .order("created_at", { ascending: false });
-
-        if (severityError) throw severityError;
-
-        if (severityData && severityData.length > 0) {
-          console.log("Severity data:", severityData);
-
-          // Get current date for time-based weighting
-          const currentDate = new Date();
-          let totalWeightedScore = 0;
-          let totalWeight = 0;
-
-          // Calculate weighted happiness score
-          severityData.forEach((record) => {
-            const severity = parseInt(record.severity, 10);
-            if (!isNaN(severity)) {
-              // Convert severity to happiness score (1-5 → 100-0)
-              // Severity 1 = 100% happiness, Severity 5 = 0% happiness
-              const happinessScore = 100 - (severity - 1) * 25;
-
-              // Calculate time difference in days
-              const recordDate = new Date(record.created_at);
-              const daysDifference = Math.max(
-                1,
-                Math.round(
-                  (currentDate.getTime() - recordDate.getTime()) /
-                    (1000 * 60 * 60 * 24)
-                )
-              );
-
-              // Time-based weight: recent entries have more weight
-              // Weight formula: 1/(days^0.5) - decreases with square root of days
-              const weight = 1 / Math.sqrt(daysDifference);
-
-              totalWeightedScore += happinessScore * weight;
-              totalWeight += weight;
-            }
+        // Initialize happiness calculation variables
+        let happinessScore = 0;
+        let totalWeight = 0;
+        
+        // Get current date for time-based weighting
+        const currentDate = new Date();
+        
+       
+        // Fetch mind state data
+        let mindStateData: MindStateEntry[] = [];
+        try {
+          console.log("Fetching mind states data for happiness index...");
+          
+          const { data, error } = await supabase
+            .from("mind_states")
+            .select("*")
+            .order("created_at", { ascending: false });
+            
+          if (error) {
+            console.error("Error fetching mind_states:", error);
+            // Will have default happiness index if no data
+          } else if (data) {
+            mindStateData = data;
+            console.log(`Successfully fetched ${data.length} mind state entries.`);
+          }
+        } catch (mindStateError) {
+          console.error("Exception fetching mind_states:", mindStateError);
+        }
+        
+        // Calculate happiness index ONLY from mind state data
+        if (mindStateData && mindStateData.length > 0) {
+          console.log(`Calculating happiness index from ${mindStateData.length} mind state entries`);
+          
+          // Process MindState data with time-based weighting
+          mindStateData.forEach((record: MindStateEntry) => {
+            // Get happiness value based on feeling
+            const feelingHappinessScore = feelingToHappinessMap[record.feeling] || 50;
+            
+            // Calculate time difference in days
+            const recordDate = new Date(record.created_at);
+            const daysDifference = Math.max(
+              1,
+              Math.round(
+                (currentDate.getTime() - recordDate.getTime()) /
+                  (1000 * 60 * 60 * 24)
+              )
+            );
+            
+            // Time-based weight: recent entries have more weight
+            const weight = 1 / Math.sqrt(daysDifference);
+            
+            happinessScore += feelingHappinessScore * weight;
+            totalWeight += weight;
           });
-
-          // Calculate final happiness index
-          const happinessIndex =
+          
+          // Calculate final happiness index from mind state data only
+          const mindStateHappinessIndex = 
             totalWeight > 0
-              ? Math.round(totalWeightedScore / totalWeight) / 10
-              : 10; // Default to 100 if no weights
-
-          // Ensure index stays within 0-100 range
-          const boundedIndex = Math.max(0, Math.min(100, happinessIndex));
+              ? Math.round(happinessScore / totalWeight) / 10
+              : 5; // Default to 5 if no data
+              
+          // Ensure index stays within 0-10 range
+          const boundedIndex = Math.max(0, Math.min(10, mindStateHappinessIndex));
           setHappinessIndex(boundedIndex);
-
-          console.log("Calculated happiness index:", boundedIndex);
-
-          // Check if today is the last day of the month and save the index
+          
+          // Check if today is the last day of the month and save the calculated index
+          // Use boundedIndex directly instead of happinessIndex state to avoid loop
           if (isLastDayOfMonth()) {
             saveMonthlyHappinessIndex(boundedIndex);
           }
+          
+          console.log("Calculated happiness index from mind states:", boundedIndex);
         } else {
-          setHappinessIndex(100); // Default to 100% if no severity data
+          console.log("No mind state data available - setting default happiness index");
+          setHappinessIndex(5); // Default to middle value if no data
+          
+          // If we need to save a default value when there's no data:
+          if (isLastDayOfMonth()) {
+            saveMonthlyHappinessIndex(5); // Use the constant 5 directly
+          }
         }
 
         // Fetch historical happiness data
@@ -288,7 +342,7 @@ function AdminDashboard() {
         setIsHappinessLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setHappinessIndex(100); // Default to 100% in case of error
+        setHappinessIndex(5); // Default to middle value in case of error
         setIsHappinessLoading(false);
       }
     };
@@ -297,8 +351,8 @@ function AdminDashboard() {
 
     // Optional: For testing, you can force the saveMonthlyHappinessIndex function
     // to run regardless of the date
-    // saveMonthlyHappinessIndex(happinessIndex);
-  }, []);
+    // saveMonthlyHappinessIndex(5);
+  }, []); // Include feelingToHappinessMap in the dependency array
 
   // Helper function to get happiness class based on the index value
   const getHappinessClass = () => {
@@ -361,8 +415,22 @@ function AdminDashboard() {
 
   return (
     <div className="admin-dashboard" style={{ width: "auto" }}>
-      <div className="header" style={{ position: "relative", width: "100%", padding: "0", grid: "10fr 1fr" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", grid: "10fr 1fr" }}>
+      <div
+        className="header"
+        style={{
+          position: "relative",
+          width: "100%",
+          padding: "0",
+          grid: "10fr 1fr",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            grid: "10fr 1fr",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center" }}>
             <Link to="/">
               <p
@@ -394,20 +462,25 @@ function AdminDashboard() {
         </div>
       </div>
 
-      <h1
+      <div
         style={{
-          fontFamily: "Montserrat",
-          fontWeight: "700",
-          borderBottom: "#277585 2px solid",
-          paddingBottom: "2rem",
-          width: "50%",
-          left: 0,
-          right: 0,
-          margin: "2rem auto",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
-        Insights Dashboard
-      </h1>
+        <h1
+          style={{
+            fontFamily: "Montserrat",
+            fontWeight: "700",
+            width: "50%",
+            cursor: "pointer",
+          }}
+          onClick={() => window.location.reload()}
+        >
+          Insights Dashboard
+        </h1>
+      </div>
 
       {isHappinessLoading ? (
         <p>Calculating Data...</p>
@@ -623,10 +696,30 @@ function AdminDashboard() {
           gap: "2rem",
         }}
       >
-        <div className="dashboard-section">
+        <div
+          className="dashboard-section"
+          style={{ width: window.innerWidth < 768 ? "auto" : "50%", alignItems: "center", justifyContent:"center" }}
+        >
           <h2>Student Summary</h2>
-          <p>Total Entries: {uniqueUsers.length}</p>
-          <p>Recent Activity: {recentActivity.length}</p>
+          <p style={{padding: 0, margin:"0" }}>Total Conversations: {uniqueUsers.length}</p>
+          {/* new conversations in the last 7 days */}
+          <p style={{ fontSize: "1.25rem", color: "gray"}}>
+            +
+            {
+              uniqueUsers.filter((user) => {
+                // Parse the user creation date
+                const userDate = new Date(user.created_at);
+
+                // Calculate date from 7 days ago
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+                // Compare dates properly
+                return userDate >= sevenDaysAgo;
+              }).length
+            }{" "} since last week
+          </p>
+
           <Link
             to="/admin/students"
             className="btn"
@@ -634,10 +727,10 @@ function AdminDashboard() {
               display: "inline-block",
               background: "#277585",
               color: "white",
-              padding: "0.5rem 1rem",
-              borderRadius: "0.5rem",
+              fontSize: "1.5rem",
+              padding: "1rem 2rem",
+              borderRadius: "3rem",
               textDecoration: "none",
-              marginTop: "1rem",
             }}
           >
             Manage Students

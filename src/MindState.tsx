@@ -2,7 +2,30 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import { getDisplayName } from "./lib/userUtils";
+import { supabase } from "./lib/supabase"; // Import Supabase client
 import "./App.css";
+
+interface User {
+  user_metadata?: {
+    class?: string;
+  };
+}
+
+const getUserClass = (user: User | null): string => {
+  if (!user) return "";
+
+  // Check if class info exists in user.user_metadata
+  const userClass = user.user_metadata?.class || "";
+
+  // Extract number and letter from the class string
+  const match = userClass.match(/(\d+)\s*([a-zA-Z])/);
+  if (match) {
+    const [, number, letter] = match;
+    return `${number} ${letter}`;
+  }
+
+  return "";
+};
 
 const feelingsMap: { [key: string]: string[] } = {
   "Very Pleasant": [
@@ -105,6 +128,7 @@ const factorsMap: { [key: string]: string[] } = {
     "Gratitude",
     "Freedom",
     "Creativity",
+    "PE",
     "Recognition",
     "Health",
     "Wealth",
@@ -116,6 +140,7 @@ const factorsMap: { [key: string]: string[] } = {
     "Laughter",
     "Relaxation",
     "Hobbies",
+    "PE",
     "Support",
     "Nature",
     "Learning",
@@ -213,11 +238,29 @@ const factorsMap: { [key: string]: string[] } = {
   ],
 };
 
+// Emoji images mapping for each feeling
+const emojiImages: { [key: string]: string } = {
+  "Very Pleasant":
+    "https://cdn3d.iconscout.com/3d/premium/thumb/starry-eyed-3d-icon-download-in-png-blend-fbx-gltf-file-formats--smiley-emoji-happy-smile-face-emoticon-vol1-pack-sign-symbols-icons-7547591.png",
+  Pleasant:
+    "https://cdn3d.iconscout.com/3d/premium/thumb/laugh-3d-icon-download-in-png-blend-fbx-gltf-file-formats--smiley-emoji-happy-smile-emoticon-vol1-pack-sign-symbols-icons-7547581.png",
+  "Slightly Pleasant":
+    "https://cdn3d.iconscout.com/3d/premium/thumb/laugh-3d-icon-download-in-png-blend-fbx-gltf-file-formats--smiley-emoji-happy-emoticon-vol1-pack-sign-symbols-icons-7547597.png",
+  Neutral:
+    "https://cdn3d.iconscout.com/3d/premium/thumb/without-speechless-with-no-mouth-3d-icon-download-in-png-blend-fbx-gltf-file-formats--smiley-emoji-happy-smile-face-emoticon-vol1-pack-sign-symbols-icons-7547593.png",
+  "Slightly Unpleasant":
+    "https://cdn3d.iconscout.com/3d/premium/thumb/confounded-3d-icon-download-in-png-blend-fbx-gltf-file-formats--sad-emoji-smiley-happy-smile-face-emoticon-vol1-pack-sign-symbols-icons-7547600.png",
+  Unpleasant:
+    "https://cdn3d.iconscout.com/3d/premium/thumb/loudly-crying-3d-icon-download-in-png-blend-fbx-gltf-file-formats--smiley-emoji-happy-cry-emoticon-vol1-pack-sign-symbols-icons-7547596.png",
+  "Very Unpleasant":
+    "https://cdn3d.iconscout.com/3d/premium/thumb/angry-3d-icon-download-in-png-blend-fbx-gltf-file-formats--emoji-smiley-happy-smile-emoticon-vol1-pack-sign-symbols-icons-7547588.png",
+};
+
 function MindState() {
   // Get user info from Supabase auth
   const { user } = useAuth();
   const userName = getDisplayName(user);
-  
+
   // Use user ID for localStorage keys
   const storageKey = `mindstate-data-${user?.id || "guest"}`;
 
@@ -226,10 +269,21 @@ function MindState() {
   const [question2Selected, setQuestion2Selected] = useState<string[]>([]);
   const [question3Options, setQuestion3Options] = useState<string[]>([]);
   const [question3Selected, setQuestion3Selected] = useState<string[]>([]);
+  const userClass = getUserClass(user);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [fade, setFade] = useState("fade-in");
   const [message, setMessage] = useState("");
+  const [imageFade, setImageFade] = useState("image-fade-in");
+  const [saveError, setSaveError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Clear form function
+  const clearForm = () => {
+    setFeeling("Neutral");
+    setQuestion2Selected([]);
+    setQuestion3Selected([]);
+    setCurrentQuestion(0);
+  };
 
   const nextQuestion = () => {
     if (currentQuestion < 2) {
@@ -241,6 +295,72 @@ function MindState() {
     } else {
       saveToLocalStorage();
     }
+  };
+
+  // Function to save data to Supabase
+  const saveToSupabase = async () => {
+    if (!user?.id) {
+      console.error("No user ID available");
+      return false;
+    }
+    
+    try {
+      console.log("Attempting to save mind state to Supabase...");
+      
+      // Use user ID as string to avoid any UUID issues
+      const { error } = await supabase.from("mind_states").insert([
+        {
+          user_id: user.id.toString(), // Convert to string explicitly
+          user_name: userName || "Anonymous",
+          user_class: userClass || "",
+          feeling: feeling,
+          feeling_descriptions: question2Selected,
+          impact_factors: question3Selected,
+        },
+      ]);
+      
+      if (error) {
+        console.error("Error saving to Supabase:", error);
+        setSaveError(`Failed to save data: ${error.message}`);
+        return false;
+      }
+      
+      console.log("Successfully saved mind state to Supabase");
+      return true;
+    } catch (err) {
+      console.error("Exception saving to Supabase:", err);
+      setSaveError("An unexpected error occurred");
+      return false;
+    }
+  };
+
+  // Updated function to save both locally and to Supabase
+  const saveToLocalStorage = async () => {
+    const data = {
+      feeling,
+      question2Selected,
+      question3Selected,
+    };
+    localStorage.setItem(storageKey, JSON.stringify(data));
+    
+    // Try to save to Supabase
+    await saveToSupabase();
+    
+    // Clear selected options
+    setQuestion2Selected([]);
+    setQuestion3Selected([]);
+    
+    setMessage("State of Mind Logged");
+    setFade("fade-out");
+    setTimeout(() => {
+      setCurrentQuestion(3);
+      setFade("fade-in");
+      setTimeout(() => {
+        // Clear form before navigating
+        clearForm();
+        navigate("/");
+      }, 2000);
+    }, 500);
   };
 
   const prevQuestion = () => {
@@ -265,23 +385,6 @@ function MindState() {
     }
   };
 
-  const saveToLocalStorage = () => {
-    const data = {
-      feeling,
-      question2Selected,
-      question3Selected,
-    };
-    localStorage.setItem(storageKey, JSON.stringify(data));
-    setMessage("State of Mind Logged");
-    setFade("fade-out");
-    setTimeout(() => {
-      setCurrentQuestion(3);
-      setFade("fade-in");
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
-    }, 500);
-  };
 
   useEffect(() => {
     if (feeling) {
@@ -290,23 +393,26 @@ function MindState() {
     }
   }, [feeling]);
 
+  // Add image fade effect when feeling changes
   useEffect(() => {
-    setFeeling("Neutral");
-  }, []);
+    setImageFade("image-fade-out");
+    const timer = setTimeout(() => {
+      setImageFade("image-fade-in");
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [feeling]);
 
   useEffect(() => {
-    const savedData = localStorage.getItem(storageKey);
-    if (savedData) {
-      const data = JSON.parse(savedData);
-      setFeeling(data.feeling);
-      setQuestion2Selected(data.question2Selected);
-      setQuestion3Selected(data.question3Selected);
-    }
-  }, [storageKey]);
+    // Clear the form on component mount
+    clearForm();
+    
+    // Remove the localStorage load to ensure form is always fresh
+    // If you still want to persist data, you could conditionally load it here
+  }, []); // Empty dependency array means this runs once on mount
 
   return (
     <div className="mindstate-container">
-      <div className="header">
+      <div className="header" style={{position:"relative"}}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
             <Link to="/">
@@ -327,13 +433,29 @@ function MindState() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "0.5rem",
+              gap: "1rem",
               color: "#3d3027",
             }}
           >
-            <span className="name" style={{ cursor: "pointer" }}>
-              {userName}
-            </span>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+              }}
+            >
+              <span className="name" style={{ fontSize: "1.5rem" }}>
+                {userName}
+              </span>
+              {userClass && (
+                <span
+                  className="class"
+                  style={{ fontSize: "1rem", opacity: 1 }}
+                >
+                  Class {userClass}
+                </span>
+              )}
+            </div>
             <i className="fas fa-circle" style={{ fontSize: "1.5rem" }}></i>
           </div>
         </div>
@@ -346,7 +468,22 @@ function MindState() {
       </div>
       <br />
 
-      <div className={`question-container ${fade}`}>
+      <div
+        className={`question-container ${fade}`}
+        style={{
+          width: window.innerWidth < 768 ? "100%" : "50%",
+          margin: "0 auto",
+        }}
+      >
+        {currentQuestion !== 3 && (
+          <img
+            src={emojiImages[feeling]}
+            style={{ height: "30vh" }}
+            alt={`${feeling} mood emoji`}
+            className={imageFade}
+          />
+        )}
+
         {currentQuestion === 0 && (
           <div
             style={{
@@ -369,26 +506,26 @@ function MindState() {
               value={
                 feeling
                   ? [
-                      "Very Pleasant",
-                      "Pleasant",
-                      "Slightly Pleasant",
-                      "Neutral",
-                      "Slightly Unpleasant",
-                      "Unpleasant",
                       "Very Unpleasant",
+                      "Unpleasant",
+                      "Slightly Unpleasant",
+                      "Neutral",
+                      "Slightly Pleasant",
+                      "Pleasant",
+                      "Very Pleasant",
                     ].indexOf(feeling) + 1
                   : 4
               }
               onChange={(e) =>
                 setFeeling(
                   [
-                    "Very Pleasant",
-                    "Pleasant",
-                    "Slightly Pleasant",
-                    "Neutral",
-                    "Slightly Unpleasant",
-                    "Unpleasant",
                     "Very Unpleasant",
+                    "Unpleasant",
+                    "Slightly Unpleasant",
+                    "Neutral",
+                    "Slightly Pleasant",
+                    "Pleasant",
+                    "Very Pleasant",
                   ][parseInt(e.target.value) - 1]
                 )
               }
@@ -469,6 +606,7 @@ function MindState() {
           <div
             style={{
               display: "flex",
+              flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
               height: "100vh",
@@ -478,6 +616,11 @@ function MindState() {
             }}
           >
             {message}
+            {saveError && (
+              <p style={{ fontSize: "1rem", color: "#d2565b", marginTop: "1rem" }}>
+                {saveError}
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -487,7 +630,7 @@ function MindState() {
           display: currentQuestion === 3 ? "none" : "flex",
           justifyContent: "space-between",
           marginTop: "4rem",
-          width: "80%",
+          width: window.innerWidth < 768 ? "80%" : "40%",
           margin: "4rem auto",
         }}
       >
@@ -535,6 +678,14 @@ function MindState() {
         }
         .question-container {
           transition: opacity 0.3s ease-in-out;
+        }
+        .image-fade-in {
+          opacity: 1;
+          transition: opacity 0.3s ease-in;
+        }
+        .image-fade-out {
+          opacity: 0;
+          transition: opacity 0.3s ease-out;
         }
       `}</style>
     </div>

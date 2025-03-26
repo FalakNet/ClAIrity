@@ -25,6 +25,7 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [studentClass, setStudentClass] = useState('');
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [isEmailSent, setIsEmailSent] = useState(false);
@@ -50,34 +51,52 @@ const Signup = () => {
       return;
     }
 
+    // Validate class format (Number 1-12 followed by letter A-Z)
+    if (!studentClass) {
+      setFormError("Please enter your class");
+      return;
+    }
+
+    const classRegex = /^([1-9]|1[0-2])[A-Z]$/;
+    if (!classRegex.test(studentClass)) {
+      setFormError("Class must be in format: Number(1-12) + Letter(A-Z). Example: 12F, 8B");
+      return;
+    }
+
+    // Validate email format
+    if (!email.endsWith('_oow@gemselearning.com')) {
+      setFormError("Please use School provided Email");
+      return;
+    }
+
     // Validate terms agreement
     if (!agreeToTerms) {
       setFormError("You must agree to the Terms and Conditions");
       return;
     }
    
-    
     try {
       // Log the data being sent
       console.log('Sending registration data:', { 
         email, 
         password, 
         firstName, 
-        lastName
+        lastName,
+        studentClass
       });
 
       // Add debugging to check if we reach this point
       console.log('About to call register function...');
       
-      // Pass firstName and lastName as user metadata
-      // This assumes your useAuth hook accepts this parameter structure
+      // Pass firstName, lastName and class as user metadata
       const result = (await register(
         email, 
         password, 
         { 
           metadata: { 
             first_name: firstName,
-            last_name: lastName
+            last_name: lastName,
+            class: studentClass
           }
         }
       )) as AuthResponse;
@@ -163,6 +182,22 @@ const Signup = () => {
                 className="auth-input"
               />
             </div>
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="studentClass">Class</label>
+            <input
+              type="text"
+              id="studentClass"
+              value={studentClass}
+              onChange={(e) => setStudentClass(e.target.value.toUpperCase())}
+              required
+              disabled={loading}
+              placeholder="Example: 12F, 8B"
+              className="auth-input"
+              maxLength={3}
+            />
+            <small className="form-hint">Enter your class as Number(1-12) + Letter(A-Z)</small>
           </div>
           
           <div className="form-group">
