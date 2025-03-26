@@ -1,7 +1,7 @@
-import { useState, FormEvent } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from './hooks/useAuth';
-import './styles/auth.css';
+import { useState, FormEvent } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "./hooks/useAuth";
+import "./styles/auth.css";
 
 // Add interface for auth response
 interface AuthResponse {
@@ -10,26 +10,23 @@ interface AuthResponse {
     email: string;
     // Add other user properties as needed
   };
-  session?: import('@supabase/supabase-js').Session | null;
+  session?: import("@supabase/supabase-js").Session | null;
   error?: {
     message: string;
   };
 }
 
-
-
 const Signup = () => {
   // Form state
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [studentClass, setStudentClass] = useState('');
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [studentClass, setStudentClass] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [isEmailSent, setIsEmailSent] = useState(false);
-
 
   // Get auth context and navigation
   const { register, error: authError, loading } = useAuth();
@@ -38,13 +35,13 @@ const Signup = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setFormError(null);
-    
+
     // Validate password match
     if (password !== confirmPassword) {
       setFormError("Passwords don't match");
       return;
     }
-    
+
     // Validate password strength
     if (password.length < 8) {
       setFormError("Password must be at least 8 characters");
@@ -59,13 +56,9 @@ const Signup = () => {
 
     const classRegex = /^([1-9]|1[0-2])[A-Z]$/;
     if (!classRegex.test(studentClass)) {
-      setFormError("Class must be in format: Number(1-12) + Letter(A-Z). Example: 12F, 8B");
-      return;
-    }
-
-    // Validate email format
-    if (!email.endsWith('_oow@gemselearning.com')) {
-      setFormError("Please use School provided Email");
+      setFormError(
+        "Class must be in format: Number(1-12) + Letter(A-Z). Example: 12F, 8B"
+      );
       return;
     }
 
@@ -74,34 +67,30 @@ const Signup = () => {
       setFormError("You must agree to the Terms and Conditions");
       return;
     }
-   
+
     try {
       // Log the data being sent
-      console.log('Sending registration data:', { 
-        email, 
-        password, 
-        firstName, 
+      console.log("Sending registration data:", {
+        email,
+        password,
+        firstName,
         lastName,
-        studentClass
+        studentClass,
       });
 
       // Add debugging to check if we reach this point
-      console.log('About to call register function...');
-      
+      console.log("About to call register function...");
+
       // Pass firstName, lastName and class as user metadata
-      const result = (await register(
-        email, 
-        password, 
-        { 
-          metadata: { 
-            first_name: firstName,
-            last_name: lastName,
-            class: studentClass
-          }
-        }
-      )) as AuthResponse;
-      
-      console.log('Register function returned:', result);
+      const result = (await register(email, password, {
+        metadata: {
+          first_name: firstName,
+          last_name: lastName,
+          class: studentClass,
+        },
+      })) as AuthResponse;
+
+      console.log("Register function returned:", result);
 
       if (result.error) {
         throw new Error(result.error.message);
@@ -110,14 +99,14 @@ const Signup = () => {
       // Only if registration is successful, show confirmation
       setIsEmailSent(true);
     } catch (error) {
-      console.error('Registration failed with error:', error);
+      console.error("Registration failed with error:", error);
       // Log the full error object for more details
       if (error instanceof Error) {
-        console.error('Error name:', error.name);
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
+        console.error("Error name:", error.name);
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
       } else {
-        console.error('Unknown error type:', typeof error);
+        console.error("Unknown error type:", typeof error);
       }
       setFormError((error as Error).message);
     }
@@ -131,8 +120,9 @@ const Signup = () => {
           <h1 className="auth-title">clarity</h1>
           <h2>Check you Email</h2>
           <p className="auth-subtitle">
-            We've sent a confirmation email to <strong>{email}</strong>.<br/>
-            Please check your inbox and follow the instructions to complete your registration.
+            We've sent a confirmation email to <strong>{email}</strong>.<br />
+            Please check your inbox and follow the instructions to complete your
+            registration.
           </p>
           <div className="auth-links">
             <p>
@@ -149,11 +139,11 @@ const Signup = () => {
       <div className="auth-form-card">
         <h1 className="auth-title">clarity</h1>
         <p className="auth-subtitle">Sign up for Clarity</p>
-        
+
         {(formError || authError) && (
           <div className="auth-error">{formError || authError}</div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="auth-form">
           {/* Name fields */}
           <div className="form-row">
@@ -169,7 +159,7 @@ const Signup = () => {
                 className="auth-input"
               />
             </div>
-            
+
             <div className="form-group half">
               <label htmlFor="lastName">Last Name</label>
               <input
@@ -183,7 +173,7 @@ const Signup = () => {
               />
             </div>
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="studentClass">Class</label>
             <input
@@ -197,9 +187,11 @@ const Signup = () => {
               className="auth-input"
               maxLength={3}
             />
-            <small className="form-hint">Enter your class as Number(1-12) + Letter(A-Z)</small>
+            <small className="form-hint">
+              Enter your class as Number(1-12) + Letter(A-Z)
+            </small>
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -213,7 +205,7 @@ const Signup = () => {
               className="auth-input"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -227,7 +219,7 @@ const Signup = () => {
               className="auth-input"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="confirmPassword">Confirm Password</label>
             <input
@@ -241,10 +233,7 @@ const Signup = () => {
               className="auth-input"
             />
           </div>
-          
-          
-          
-          
+
           <div className="form-group checkbox-group">
             <input
               type="checkbox"
@@ -255,19 +244,18 @@ const Signup = () => {
               className="auth-checkbox"
             />
             <label htmlFor="agreeToTerms">
-              I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer">Terms and Conditions</a>
+              I agree to the{" "}
+              <a href="/terms" target="_blank" rel="noopener noreferrer">
+                Terms and Conditions
+              </a>
             </label>
           </div>
-          
-          <button 
-            type="submit" 
-            className="auth-button"
-            disabled={loading}
-          >
-            {loading ? 'Creating Account...' : 'Sign Up'}
+
+          <button type="submit" className="auth-button" disabled={loading}>
+            {loading ? "Creating Account..." : "Sign Up"}
           </button>
         </form>
-        
+
         <div className="auth-links">
           <p>
             Already have an account? <Link to="/login">Log in</Link>
